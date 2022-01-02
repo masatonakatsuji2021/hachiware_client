@@ -1,7 +1,7 @@
 const CLI = require("hachiware_cli");
+const csls = require("./bin/");
 
-module.exports = function(rootPath){
-
+module.exports = function(rootPath, command){
 
     var cli = new CLI();
 
@@ -9,30 +9,38 @@ module.exports = function(rootPath){
 
         this.outn("*** Hachiware Client **************").br();
 
+        if(command){
+            if(!csls.bind(rootPath, command, resolve)){
+                resolve();
+            };
+            return;
+        }
+
         var args = this.getArgs();
 
         if(args){
-            if(args[0] == "create"){
-                const create = require("./bin/create");
-                create.bind(this)(rootPath, args, resolve);
-            }
-            else if(args[0] == "build"){
-                const build = require("./bin/build");
-                build.bind(this)(rootPath, args, resolve);
-            }
-            else{
-                this.color.red("[ERROR] ").outn("\"" + args[0] + "\" is not exists command.");
+            if(!csls.bind(rootPath, args, resolve)){
                 resolve();
             }
+            return;
         }
-        else{
 
+        this.in("Command Input:", function(value,retry){
 
-            
-            resolve();
-        }
+            if(!value){
+                this.color.red("[ERROR] ").ount("command not found. retry.");
+                return retry();
+            }
+
+            value = value.split(" ");
+            if(!csls.bind(this)(rootPath, value, resolve)){
+                return retry();
+            }
+
+        });
 
     }).then(function(){
+        this.br().outn("... BYE.");
         process.exit();
     }).start();
 

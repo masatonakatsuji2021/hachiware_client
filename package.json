@@ -1,0 +1,28 @@
+{
+  "name": "hachiware_client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "hachiware_sync": "^1.0.0",
+    "hachiware_tool": "^1.0.0",
+    "hachiware_cli": "^1.0.0",
+    "hachiware_fs": "^1.0.0"
+  },
+  "bin": {
+    "hachiware_client": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masatonakatsuji2021/hachiware_client.git"
+  },
+  "author": "Nakatsuji Masato",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/masatonakatsuji2021/hachiware_client/issues"
+  },
+  "homepage": "https://github.com/masatonakatsuji2021/hachiware_client#readme"
+}
