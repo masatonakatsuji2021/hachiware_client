@@ -67,8 +67,6 @@ module.exports = function(rootPath, args, exitResolve){
     }).then(function(){
 
         exitResolve();
-        
+
     }).start();
-
-
 };
