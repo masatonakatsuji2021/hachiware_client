@@ -44,6 +44,7 @@ var Hachiware = function(){
 			var _f = new cond.loadForm(formName,forms);
 			return _f;
 		};
+
 		page.$el = buffer.pageDom;
 		page.$layoutEl = buffer.layoutDom;
 
@@ -129,9 +130,6 @@ var Hachiware = function(){
 				loadingPage(resolve, routes, "before");
 			},
 			function(resolve){
-
-                console.log(buffer._layout);
-                console.log(buffer.layout);
                 
 				var contents = $("[hachiware-contents]");
                 

@@ -1,7 +1,6 @@
 hachiware.loadPage = function(pageName, pages){
 
     this.$name = pageName;
-    
     this.$base = {};
 
     if(pages[pageName]){
