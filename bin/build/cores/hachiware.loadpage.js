@@ -1,4 +1,4 @@
-hachiware.loadPage = function(pageName, pages){
+hachiware.loadPage = function(pageName, pages, context, sections, forms, renders, buffer){
 
     this.$name = pageName;
     this.$base = {};
@@ -21,5 +21,18 @@ hachiware.loadPage = function(pageName, pages){
 			}
 		}
 	}
+
+	this.$section = function(sectionName){
+		var _s = new context.loadSection(sectionName,sections,context,renders);
+		return _s;
+	};
+
+	this.$form = function(formName){
+        var _f = new context.loadForm(formName,forms);
+        return _f;
+    };
+	
+	this.$el = buffer.pageDom;
+	this.$layoutEl = buffer.layoutDom;
 
 };

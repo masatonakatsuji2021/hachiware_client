@@ -34,19 +34,14 @@ var Hachiware = function(){
             return resolve0();
         }
 
-        var page = new cond.loadPage(routes.url, pages);
-
-        page.$section = function(sectionName){
-            var _s = new cond.loadSection(sectionName,sections);
-			return _s;
-		};
+        var page = new cond.loadPage(routes.url, pages, cond, sections, forms, renders, buffer);
+		
+/*
 		page.$form = function(formName){
 			var _f = new cond.loadForm(formName,forms);
 			return _f;
 		};
-
-		page.$el = buffer.pageDom;
-		page.$layoutEl = buffer.layoutDom;
+*/
 
         if(mode == "before"){
             if(page.layout){
