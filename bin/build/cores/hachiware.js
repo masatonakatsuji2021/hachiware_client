@@ -47,6 +47,12 @@ var Hachiware = function(){
 		page.$el = buffer.pageDom;
 		page.$layoutEl = buffer.layoutDom;
 
+        if(mode == "before"){
+            if(page.layout){
+                buffer.layout = page.layout;
+            }    
+        }
+
         cond.sync.sync([
 			function(resolve2){
 
@@ -76,12 +82,6 @@ var Hachiware = function(){
 
                 var pageCallback = page.$base[mode].bind(page);
 
-                if(page.layout){
-                    if(!noLayouted){
-                        buffer.layout = page.layout;
-                   }
-                }
-
                 if(page[syncName]){
                     if(routes.aregment){
                         pageCallback(resolve0, routes.aregment);
@@ -106,6 +106,7 @@ var Hachiware = function(){
 				},
 			],this);
 
+        return page;
     };
 
 	const renderings = function(url, backUrl){
@@ -125,9 +126,12 @@ var Hachiware = function(){
                 loadingPage(resolve, backRoutes, "close", true);
 			},
 			function(resolve){
-				loadingPage(resolve, routes,"before");
+				loadingPage(resolve, routes, "before");
 			},
 			function(resolve){
+
+                console.log(buffer._layout);
+                console.log(buffer.layout);
                 
 				var contents = $("[hachiware-contents]");
                 

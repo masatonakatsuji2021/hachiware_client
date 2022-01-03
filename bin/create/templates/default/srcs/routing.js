@@ -4,6 +4,7 @@ hachiware.routing({
         "/page_a":"pagea",
         "/page_b":"pageb",
         "/page_c":"pagec",
+        "/page_d":"paged",
         /*
 		"/page_a": {
 			"/" : "page_a",
