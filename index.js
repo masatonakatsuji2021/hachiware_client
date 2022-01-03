@@ -10,7 +10,7 @@ module.exports = function(rootPath, command){
         this.outn("*** Hachiware Client **************").br();
 
         if(command){
-            if(!csls.bind(rootPath, command, resolve)){
+            if(!csls.bind(this)(rootPath, command, resolve)){
                 resolve();
             };
             return;
@@ -19,7 +19,7 @@ module.exports = function(rootPath, command){
         var args = this.getArgs();
 
         if(args){
-            if(!csls.bind(rootPath, args, resolve)){
+            if(!csls.bind(this)(rootPath, args, resolve)){
                 resolve();
             }
             return;

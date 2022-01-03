@@ -1,4 +1,5 @@
 const hfs = require("hachiware_fs");
+const https = require("https");
 const path = require("path");
 const tool = require("hachiware_tool");
 
@@ -30,6 +31,34 @@ module.exports = function(rootPath, args, exitResolve){
 
     }).then(function(resolve){
 
+        if(hfs.existsSync(rootPath + "/__jqueryBuffer")){
+            this.color.blue("# ").outn("Jquery Buffer exists.");
+            return resolve();
+        }
+
+        this.color.blue("# ").outn("Jquery Buffer not exists (get now ...)");
+
+        // get jquery
+        var jqueryUrl = "https://code.jquery.com/jquery-3.6.0.min.js";
+
+        var cond = this;
+        https.get(jqueryUrl,function(res){
+
+            var getData = "";
+            res.on("data",function(stream){
+                getData += stream;
+            });
+
+            res.on("end",function(){
+                cond.color.blue("# ").outn("Jquery save... OK");
+                hfs.writeFileSync(rootPath + "/__jqueryBuffer",getData);
+                resolve();
+            });
+
+        });
+
+    }).then(function(resolve){
+
         dirPath = rootPath + "/" + args[0];
 
         // mkdir build directory
@@ -37,6 +66,11 @@ module.exports = function(rootPath, args, exitResolve){
             hfs.mkdirSync(dirPath + "/_build");
             this.color.blue("# ").outn("Mkdir /_build");    
         }catch(error){}
+
+        // jquery set
+        var jqueryStr = hfs.readFileSync(rootPath + "/__jqueryBuffer").toString();
+        hfs.writeFileSync(dirPath + "/_build/jquery.min.js", jqueryStr);
+        this.color.blue("# ").outn("Jquery Set");
 
         // coreLibrary combaine
         var coreList = JSON.parse(hfs.readFileSync(__dirname + "/cores/sort.json"));
@@ -65,13 +99,13 @@ module.exports = function(rootPath, args, exitResolve){
         this.color.blue("# ").outn("Write Script /_build/core.js");
 
         // rendering convert for pages (for base64)
-        var str="hachiware.convertPages({";
+        var str="hachiware.setRenderPage({";
         var pageRenders = hfs.deepReadDir(dirPath + "/htmls/pages");
         for(var n = 0 ; n < pageRenders.file.length ; n++){
             var f_ = pageRenders.file[n];
             var r_ = hfs.readFileSync(f_).toString();
             r_ = tool.base64Encode(r_);
-            var p_ = f_.replace(dirPath + "/htmls/pages","");
+            var p_ = f_.replace(dirPath + "/htmls/pages/","");
             p_ = p_.replace(path.extname(p_),"");
             str += "\"" + p_ + "\": \"" + r_ + "\", ";
         }
@@ -80,13 +114,13 @@ module.exports = function(rootPath, args, exitResolve){
         this.color.blue("# ").outn("Write Add convertPages /_build/core.js");
         
         // rendering convert for sections (for base64)
-        var str="hachiware.convertSection({";
+        var str="hachiware.setRenderSection({";
         var pageRenders = hfs.deepReadDir(dirPath + "/htmls/sections");
         for(var n = 0 ; n < pageRenders.file.length ; n++){
             var f_ = pageRenders.file[n];
             var r_ = hfs.readFileSync(f_).toString();
             r_ = tool.base64Encode(r_);
-            var p_ = f_.replace(dirPath + "/htmls/sections","");
+            var p_ = f_.replace(dirPath + "/htmls/sections/","");
             p_ = p_.replace(path.extname(p_),"");
             str += "\"" + p_ + "\": \"" + r_ + "\", ";
         }
@@ -95,19 +129,22 @@ module.exports = function(rootPath, args, exitResolve){
         this.color.blue("# ").outn("Write Add convertSection /_build/core.js");
 
         // rendering convert for layouts (for base64)
-        var str="hachiware.convertLayouts({";
+        var str="hachiware.setRenderLayout({";
         var pageRenders = hfs.deepReadDir(dirPath + "/htmls/layouts");
         for(var n = 0 ; n < pageRenders.file.length ; n++){
             var f_ = pageRenders.file[n];
             var r_ = hfs.readFileSync(f_).toString();
             r_ = tool.base64Encode(r_);
-            var p_ = f_.replace(dirPath + "/htmls/layouts","");
+            var p_ = f_.replace(dirPath + "/htmls/layouts/","");
             p_ = p_.replace(path.extname(p_),"");
             str += "\"" + p_ + "\": \"" + r_ + "\", ";
         }
         str += "}); \n";
         hfs.appendFileSync(dirPath + "/_build/core.js",str);
         this.color.blue("# ").outn("Write Add convertLayouts /_build/core.js");
+
+        var endStr = "$(function(){ hachiware.load(); });";
+        hfs.appendFileSync(dirPath + "/_build/core.js",endStr);
 
         try{
             hfs.deepDelete(dirPath + "/_build/assets");

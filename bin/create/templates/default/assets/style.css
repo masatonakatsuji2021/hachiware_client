@@ -10,3 +10,17 @@ body{
 a{
     color:lightblue;
 }
+
+header{
+    background:#135;
+    padding:10px;
+}
+
+.contents{
+    padding:20px;
+}
+
+footer{
+    padding:20px;
+    border-top:solid 1px #999;
+}
