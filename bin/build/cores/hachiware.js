@@ -1,7 +1,7 @@
+var __uploadFileBuffer = {};
+	
 var Hachiware = function(){
 
-    var __uploadFileBuffer = {};
-	
 	var buffer = {
 		nowUrl:null,
 		modeGo: true,
@@ -35,13 +35,6 @@ var Hachiware = function(){
         }
 
         var page = new cond.loadPage(routes.url, pages, cond, sections, forms, renders, buffer);
-		
-/*
-		page.$form = function(formName){
-			var _f = new cond.loadForm(formName,forms);
-			return _f;
-		};
-*/
 
         if(mode == "before"){
             if(page.layout){
@@ -441,7 +434,7 @@ var Hachiware = function(){
 
 					var getFile = $(this).prop("files");
 
-					var uid = spaxTool.uniqId();
+					var uid = cond.tool.uniqId();
 
 					if(!__uploadFileBuffer[uid]){
 						__uploadFileBuffer[uid] = [];
@@ -457,12 +450,11 @@ var Hachiware = function(){
 						fileReader.size = file.size;
 						fileReader.type = file.type;
 						fileReader.onloadend = function() {
-							console.log(this);
 							__uploadFileBuffer[uid].push({
 								naem : this.name,
 								size: this.size,
 								type: this.type,
-								result: spaxTool.base64Encode(this.result),
+								result: cond.tool.base64Encode(this.result),
 							});
 						}
 						fileReader.readAsDataURL(file);	
@@ -471,24 +463,25 @@ var Hachiware = function(){
 				});
 
 				$("html").on("submit","form",function(){
+
 					try{
-						var formName = $(this).attr("spax-form");
+						var formName = $(this).attr("hachiware-form");
 
-					if(!formName){
-						return false;
-					}
+						if(!formName){
+							return false;
+						}
 
-					if(!forms[formName]){
-						return false;
-					}
+						if(!forms[formName]){
+							return false;
+						}
 
-					var form = new this.loadForm(forms[formName], forms);
+						var form = new cond.loadForm(formName, forms);
 
-					form.$el = $("[spax-form=\"" + formName + "\"]");
+						form.$el = $("[hachiware-form=\"" + formName + "\"]");
 
-						if(form.submit){
-							var submitData = spaxFormGetData(formName);
-							form.submit(submitData);
+						if(form.$base.submit){
+							var submitData = form.getData();
+							form.$base.submit(submitData);
 						}
 						
 					}catch(error){

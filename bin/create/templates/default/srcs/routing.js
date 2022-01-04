@@ -13,16 +13,8 @@ hachiware.routing({
 		"/section_test":"sectiontest",
 		"/section_test_list":"sectiontest_list",
 		"/form_test":"formtest",
-        /*
-		"/page_a": {
-			"/" : "page_a",
-			"/detail":"page_a/d",
-			"/detail2/{:id}":"page_a/d2",
-			"/detail3/{:id?}":"page_a/d3",
-		},
-		"/section_test":"sectiontest",
-		"/form_test":"formtest"
-        */
+		"/form_test2":"formtest2",
+		"/form_test3":"formtest3",
 	},
 	error:{
 		"/":"error",
