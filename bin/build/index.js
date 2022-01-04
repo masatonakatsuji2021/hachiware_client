@@ -13,24 +13,6 @@ module.exports = function(rootPath, args, exitResolve){
 
     this.then(function(resolve){
 
-        if(args[0]){
-            return resolve();
-        }
-
-        this.in("Q. Specify the directory name (project name) to build. ()", function(value, retry){
-
-            if(!value){
-                this.color.red("[ERROR] ").outn("The directory name to build is not specified. retry.");
-                return retry();
-            }
-
-            args.push(value);
-
-            resolve();         
-        });
-
-    }).then(function(resolve){
-
         if(hfs.existsSync(rootPath + "/__jqueryBuffer")){
             this.color.blue("# ").outn("Jquery Buffer exists.");
             return resolve();
@@ -59,13 +41,21 @@ module.exports = function(rootPath, args, exitResolve){
 
     }).then(function(resolve){
 
-        dirPath = rootPath + "/" + args[0];
+        if(args[0]){
+            dirPath = rootPath + "/" + args[0];
+        }
+        else{
+            dirPath = rootPath;
+        }
 
         // mkdir build directory
-        try{
+        if(hfs.existsSync(dirPath + "/_build")){
+            this.color.blue("# ").outn("exist /_build");
+        }
+        else{
             hfs.mkdirSync(dirPath + "/_build");
             this.color.blue("# ").outn("Mkdir /_build");    
-        }catch(error){}
+        }
 
         // jquery set
         var jqueryStr = hfs.readFileSync(rootPath + "/__jqueryBuffer").toString();
