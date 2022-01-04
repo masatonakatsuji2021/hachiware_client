@@ -27,20 +27,7 @@ module.exports = function(rootPath, args, exitResolve){
     }).then(function(resolve){
 
         this.outn("Use Template = " + args[0]);
-
-        if(args[1]){
-            return resolve();
-        }
-        this.in("Q. If there is a directory name to create, specify it. ()", function(value, retry){
- 
-             args.push(value);
- 
-             resolve();
-        });
-
-    }).then(function(resolve){
-
-        this.outn("Directory(Project) Name = " + args[0]);
+        this.outn("Directory(Project) Name = " + args[1]);
 
         var conf = this;
 
@@ -51,15 +38,20 @@ module.exports = function(rootPath, args, exitResolve){
             var targetPath = rootPath;
         }
 
-        hfs.deepCopy(__dirname + "/templates/" + args[0], targetPath, {
-            noMkdir: true,
+        var opt = {
             callbackMkdir: function(path){
                 conf.outn("Mkdir " + path);
             },
             callbackCopyFile: function(path, copyPath){
-                conf.outn("CopyFile (" + path.replace(__dirname + "/templates/" + args[1],"") + ") " + copyPath);
+                conf.outn("CopyFile (" + path.replace(__dirname + "/templates/" + args[0],"") + ") " + copyPath);
             },
-        });
+        };
+
+        if(!args[1]){
+            opt.noMkdir = true;
+        }
+
+        hfs.deepCopy(__dirname + "/templates/" + args[0], targetPath, opt);
 
         this.br(2).outn(".....Complete");
 
