@@ -544,10 +544,12 @@ The variables or objects (global variables) that can be used in the page callbac
 |$el|Page area JQuery object|
 |$layoutEl|Layout area JQuery object|
 |$parent|Inheritance source page object|
+|$redirect|Move to another page|
+|$back|Return to the previous page|
 |$form|object for form of hachiware_client<br>[Click here for details](#form)|
 |$section|object for section of hachiware_client<br>[Click here for details](#section)|
 |$models|object for model of hachiware_client<br>[Click here for details](#model)|
-|$validator|Object for validator of hachiware_client<br>[Click here for details](#validator|
+|$validator|Object for validator of hachiware_client<br>[Click here for details](#validator)|
 
 By using ``$el``, you can operate the DOM by focusing on each element tag in the page.
 
@@ -567,10 +569,66 @@ hachiware.page("main",{
 });
 ```
 
+Use ``$redirect`` to redirect to another page.  
+In the following cases, you will be moved to another page "page_a" when you open the main screen.
+
+```javascript
+hachiware.page("main",{
+
+    extend: "app",
+
+    open: function(){
+
+        this.$redirect("page_b");
+    },
+
+});
+```
+
+There are two ways to redirect.  
+You can either redirect to another page as it is, or change the URL to another page.
+
+In the above case, it is normally redirected to another page, so it is not suitable when a page is set up in the middle and used for transfer.  
+(The transfer page will open when you return.)
+
+In that case, instead of redirecting to another page normally, you can transfer it without problems by rewriting the page URL.  
+URL rewriting can be supported by specifying true in the second argument.
+
+```javascript
+this.$redirect("page_b", true);
+```
+
+``$go`` returns to the previous page.
+
+```javascript
+this.$go();
+```
 
 ---
 
-## # 
+<a id="section"></a>
+
+## # Section
+
+
+---
+
+<a id="form"></a>
+
+## # Form
+
+---
+
+<a id="model"></a>
+
+## # Model
+
+---
+
+<a id="validator"></a>
+
+## # Validator
+
 
 ---
 

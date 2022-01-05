@@ -1,6 +1,11 @@
-hachiware.loadRedirect = function(url, context){
-    location.replace("#/" + url);
+hachiware.loadRedirect = function(url, replaced){
+    if(replaced){
+        location.replace("#/" + url);
+    }
+    else{
+        location.href = "#/" + url;
+    }
 };
-hachiware.loadBack = function(context){
+hachiware.loadBack = function(){
     history.back();
 };

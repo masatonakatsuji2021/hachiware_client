@@ -40,8 +40,8 @@ hachiware.loadPage = function(pageName, pages, context, sections, forms, renders
         return _f;
     };
 	
-	this.$redirect = function(url){
-		var _f = new context.loadRedirect(url, context);
+	this.$redirect = function(url, replaced){
+		var _f = new context.loadRedirect(url, replaced);
         return _f;
 	};
 
