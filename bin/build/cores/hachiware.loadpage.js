@@ -1,7 +1,7 @@
 hachiware.loadPage = function(pageName, pages, context, sections, forms, renders, buffer){
 
     this.$name = pageName;
-	
+
 	if(buffer.modeGo){
 		this.$mode = "next";
 	}
@@ -42,6 +42,11 @@ hachiware.loadPage = function(pageName, pages, context, sections, forms, renders
 	
 	this.$redirect = function(url){
 		var _f = new context.loadRedirect(url, context);
+        return _f;
+	};
+
+	this.$back = function(){
+		var _f = new context.loadBack(context);
         return _f;
 	};
 

@@ -1,3 +1,6 @@
 hachiware.loadRedirect = function(url, context){
-    location.hash = "/" + url;
+    location.replace("#/" + url);
+};
+hachiware.loadBack = function(context){
+    history.back();
 };

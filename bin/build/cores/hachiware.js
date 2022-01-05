@@ -187,6 +187,7 @@ var Hachiware = function(){
 			function(){
 				buffer.nowUrl = url;
 				buffer._layout = buffer.layout;	
+				buffer.modeGo = false;
 			},
 		]);
 
@@ -365,8 +366,6 @@ var Hachiware = function(){
 		}
 
 		renderings(url, beforeUrl);
-
-		buffer.modeGo = false;
 	};
 
 	this.load = function(){
@@ -399,7 +398,7 @@ var Hachiware = function(){
 				renderings(firstUrl);
 
 				window.addEventListener('popstate', function(e){
-					cond.redirect(location.hash);		
+					cond.redirect(location.hash);
 				});
 
 				$("html").on("click","a[href]", function(){
