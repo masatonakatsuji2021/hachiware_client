@@ -118,7 +118,13 @@ var Hachiware = function(){
 				loadingPage(resolve, routes, "before");
 			},
 			function(resolve){
-                
+
+				if("#" + url != location.hash){
+					if(location.hash){
+						return;
+					}
+				}
+
 				var contents = $("[hachiware-contents]");
                 
                 if(renders.pages[routes.url]){
@@ -176,13 +182,11 @@ var Hachiware = function(){
 				resolve();
 			},
 			function(resolve){
-// 				console.log("routings 04");
 				loadingPage(resolve, routes,"open");
 			},
 			function(){
-// 				console.log("routings 05");
 				buffer.nowUrl = url;
-				buffer._layout = buffer.layout;
+				buffer._layout = buffer.layout;	
 			},
 		]);
 
@@ -332,10 +336,6 @@ var Hachiware = function(){
 				desitionUrl = url;
 			}
 		}
-/*
-		console.log(checkList);
-		console.log("desition = " + desitionUrl);
-*/
 
 		if(desitionUrl){
 			return {
@@ -351,6 +351,22 @@ var Hachiware = function(){
                 }
 			};
 		}
+	};
+
+
+	this.redirect = function(url){
+
+		var beforeUrl = buffer.nowUrl;
+
+		url = url.substring(1);
+
+		if(!url){
+			url = "/";
+		}
+
+		renderings(url, beforeUrl);
+
+		buffer.modeGo = false;
 	};
 
 	this.load = function(){
@@ -383,19 +399,11 @@ var Hachiware = function(){
 				renderings(firstUrl);
 
 				window.addEventListener('popstate', function(e){
+					cond.redirect(location.hash);		
+				});
 
-					var beforeUrl = buffer.nowUrl;
-
-					var url = location.hash;
-					url = url.substring(1);
-
-					if(!url){
-						url = "/";
-					}
-
-					renderings(url, beforeUrl);
-
-					buffer.modeGo = false;
+				$("html").on("click","a[href]", function(){
+					buffer.modeGo = true;
 				});
 
 				$("html").on("click","a[url]",function(){
@@ -544,6 +552,11 @@ var Hachiware = function(){
         renders.layouts = params;
         return this;
     };
+
+	this.setMode = function(bools){
+		buffer.modeGo = bools;
+		return this;
+	};
 
 };
 var hachiware = new Hachiware();

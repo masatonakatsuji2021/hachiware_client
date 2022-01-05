@@ -1,7 +1,15 @@
 hachiware.loadPage = function(pageName, pages, context, sections, forms, renders, buffer){
 
     this.$name = pageName;
-    this.$base = {};
+	
+	if(buffer.modeGo){
+		this.$mode = "next";
+	}
+	else{
+		this.$mode = "back";
+	}
+
+	this.$base = {};
 
     if(pages[pageName]){
 		var colums = Object.keys(pages[pageName]);
@@ -32,6 +40,11 @@ hachiware.loadPage = function(pageName, pages, context, sections, forms, renders
         return _f;
     };
 	
+	this.$redirect = function(url){
+		var _f = new context.loadRedirect(url, context);
+        return _f;
+	};
+
 	this.$el = buffer.pageDom;
 	this.$layoutEl = buffer.layoutDom;
 

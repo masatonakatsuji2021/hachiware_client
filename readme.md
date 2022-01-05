@@ -534,6 +534,44 @@ hachiware.page("main",{
 });
 ```
 
+### - Global variables on the page
+
+The variables or objects (global variables) that can be used in the page callback are as follows.
+
+|name|Overview|
+|:--|:--|
+|$name|Page name|
+|$el|Page area JQuery object|
+|$layoutEl|Layout area JQuery object|
+|$parent|Inheritance source page object|
+|$form|object for form of hachiware_client<br>[Click here for details](#form)|
+|$section|object for section of hachiware_client<br>[Click here for details](#section)|
+|$models|object for model of hachiware_client<br>[Click here for details](#model)|
+|$validator|Object for validator of hachiware_client<br>[Click here for details](#validator|
+
+By using ``$el``, you can operate the DOM by focusing on each element tag in the page.
+
+```javascript
+hachiware.page("main",{
+
+    extend: "app",
+
+    open: function(){
+
+        var d = new Date();
+        var nowTime = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+
+        this.$el.find(".now_time").text(nowTime);
+    },
+
+});
+```
+
+
+---
+
+## # 
+
 ---
 
 Author: Nakatsuji Masato.
