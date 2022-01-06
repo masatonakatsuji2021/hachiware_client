@@ -34,8 +34,7 @@ var Hachiware = function(){
             return resolve0();
         }
 
-        var page = new cond.loadPage({
-			name: routes.url, 
+		var page = new cond.loadPage(routes.url, {
 			pages: pages, 
 			context: cond, 
 			buffer: buffer,
