@@ -1,16 +1,16 @@
-hachiware.loadForm = function(formName, forms, context){
+hachiware.loadForm = function(formName, options){
 
     this.$name = formName;
 
 	this.$el = $("[hachiware-form=\"" + formName + "\"]");
 
 	this.$base = {};
-
-	if(forms[formName]){
-		var colums = Object.keys(forms[formName]);
+	
+	if(options.forms[formName]){
+		var colums = Object.keys(options.forms[formName]);
 		for(var n = 0 ; n < colums.length ; n++){
 			var field = colums[n];
-			var value = forms[formName][field];
+			var value = options.forms[formName][field];
 			
 			if(
 				field == "submit" || 
@@ -217,5 +217,25 @@ hachiware.loadForm = function(formName, forms, context){
 
         return this;
     };
+
+	this.$section = function(sectionName){
+		var _s = new options.context.loadSection(sectionName, options);
+		return _s;
+	};
+
+	this.$form = function(subFormName){
+        var _f = new options.context.loadForm(subFormName,options);
+        return _f;
+    };
+	
+	this.$model = function(modelName){
+		var _m = new options.context.loadModel(modelName, options);
+        return _m;
+	};
+
+	this.$validator = function(validatorName){
+		var _v = null;
+        return _v;
+	};
 
 };

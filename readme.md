@@ -610,7 +610,87 @@ this.$back();
 
 ## # Section
 
-comming soon...!
+Section refers to the unit in which each area in the page is divided into parts.
+
+It can be made common by making sections for each displayed area.  
+You can also organize the display process for each section.
+
+### - Expand Section to the specified position
+
+In order to make a part of HTML into a Section, the tag of the display area must first be separated into the ``htmls/sections`` directory.
+
+As an example, create a `` htmls/sections/test.html`` file and write the following tags.
+
+```html
+<div style="background:#ccc;padding:20px">
+    Section Area Text Text....
+</div>
+```
+
+Next, set the tag of the part to be displayed on the page that uses section.
+
+This time, set ``<div hachiware-section="sec-area"></div>`` to the display location of ``htmls/pages/main.html``.
+
+```html
+<p>Text Text ....</p>
+<div hachiware-section="sec-area"></div>
+```
+
+After that, by using section and its open method in ``srcs/pages/main.js``  
+The contents of the section set above will be displayed at the specified location.
+
+After specifying the target section with the ``this.$Section`` method, execute the open method.
+
+```javascript
+hachiware.page("main",{
+
+    extend: "app",
+
+    open: function(){
+
+        this.$section("test").open("sec-area");
+    },
+
+});
+```
+
+By specifying the script in the ``srcs/sections`` directory,  
+You can specify the callback etc. when expanding or closing the Section.
+
+### - Section script
+
+If you specify ``srcs/sections/test.js`` as shown below, the open callback will be executed when the Section is expanded.  
+(You should see "Section Open test" in your browser console)
+
+```javascript
+hachiware.test("test",{
+
+    open: function(){
+
+        console.log("Section Open test");
+    },
+
+});
+```
+
+The planned variables or methods are:
+
+|Variable name/callback name|OverView|
+|:--|:--|
+|$el|JQuery object for section tag|
+|$name|Section Name|
+|$section|object for new section of hachiware_client|
+|$form|object for form of hachiware_client<br>[Click here for details](#form)|
+|$models|object for model of hachiware_client<br>[Click here for details](#model)|
+|$validator|Object for validator of hachiware_client<br>[Click here for details](#validator)|
+|open|Function to display section.<br>Available as a callback.|
+|append|Add section.<br>Available as a callback.|
+|close|Close the open section.<br>Available as a callback.|
+
+
+
+
+
 
 ---
 

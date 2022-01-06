@@ -1,8 +1,8 @@
-hachiware.loadPage = function(pageName, pages, context, sections, forms, renders, buffer){
+hachiware.loadPage = function(options){
 
-    this.$name = pageName;
+    this.$name = options.name;
 
-	if(buffer.modeGo){
+	if(options.buffer.modeGo){
 		this.$mode = "next";
 	}
 	else{
@@ -10,12 +10,14 @@ hachiware.loadPage = function(pageName, pages, context, sections, forms, renders
 	}
 
 	this.$base = {};
+	this.$el = options.buffer.pageDom;
+	this.$layoutEl = options.buffer.layoutDom;
 
-    if(pages[pageName]){
-		var colums = Object.keys(pages[pageName]);
+    if(options.pages[options.name]){
+		var colums = Object.keys(options.pages[options.name]);
 		for(var n = 0 ; n < colums.length ; n++){
 			var field = colums[n];
-			var value = pages[pageName][field];
+			var value = options.pages[options.name][field];
 			
 			if(
                 field == "before" || 
@@ -31,26 +33,33 @@ hachiware.loadPage = function(pageName, pages, context, sections, forms, renders
 	}
 
 	this.$section = function(sectionName){
-		var _s = new context.loadSection(sectionName,sections,context,renders);
+		var _s = new options.context.loadSection(sectionName, );
 		return _s;
 	};
 
 	this.$form = function(formName){
-        var _f = new context.loadForm(formName,forms);
+        var _f = new options.context.loadForm(formName, options);
         return _f;
     };
 	
+	this.$model = function(modelName){
+		var _m = new options.context.loadModel(modelName, options);
+        return _m;
+	};
+
+	this.$validator = function(validatorName){
+		var _v = null;
+        return _v;
+	};
+
 	this.$redirect = function(url, replaced){
-		var _f = new context.loadRedirect(url, replaced);
+		var _f = new options.context.loadRedirect(url, replaced);
         return _f;
 	};
 
 	this.$back = function(){
-		var _f = new context.loadBack(context);
+		var _f = new options.context.loadBack(options.context);
         return _f;
 	};
-
-	this.$el = buffer.pageDom;
-	this.$layoutEl = buffer.layoutDom;
 
 };

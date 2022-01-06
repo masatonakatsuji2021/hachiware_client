@@ -5,5 +5,6 @@
     "hachiware.loadRedirect.js",
     "hachiware.loadpage.js",
     "hachiware.loadsection.js",
+    "hachiware.loadModel.js",
     "hachiware.loadform.js"
 ]

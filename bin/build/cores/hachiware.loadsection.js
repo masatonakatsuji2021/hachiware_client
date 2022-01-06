@@ -1,25 +1,26 @@
-hachiware.loadSection = function(sectionName, sections, context, renders){
+hachiware.loadSection = function(sectionName, options){
 
 	var _queryString = null;
 	var sectionDom = null;
 
-    if(renders.sections[sectionName]){
-        var sectionHtml = renders.sections[sectionName];
-        sectionHtml = context.tool.base64Decode(sectionHtml);
+    if(options.renders.sections[sectionName]){
+        var sectionHtml = options.renders.sections[sectionName];
+        sectionHtml = options.context.tool.base64Decode(sectionHtml);
     }
     else{
-        var sectionHtml = $("[hachiare-section=\""+ sectionName + "\"]").html();
+        var sectionHtml = $("[hachiare-section-base=\""+ sectionName + "\"]").html();
     }
 
+	this.$name = sectionName;
 	this.$base = {};
 	this.appended = false;
 	this.increment = 0;
-
-	if(sections[sectionName]){
-		var colums = Object.keys(sections[sectionName]);
+	
+	if(options.sections[sectionName]){
+		var colums = Object.keys(options.sections[sectionName]);
 		for(var n = 0 ; n < colums.length ; n++){
 			var field = colums[n];
-			var value = sections[sectionName][field];
+			var value = options.sections[sectionName][field];
 			
 			if(
 				field == "open" || 
@@ -51,10 +52,10 @@ hachiware.loadSection = function(sectionName, sections, context, renders){
 
 		this.toggle = true;
 
-		_queryString = queryString;
+		_queryString = "[hachiware-section=\"" + queryString + "\"]";
 
-		$(queryString).html(sectionHtml);
-		sectionDom = $(queryString);
+		$(_queryString).html(sectionHtml);
+		sectionDom = $(_queryString);
 
 		this.$el = sectionDom;
 
@@ -74,10 +75,10 @@ hachiware.loadSection = function(sectionName, sections, context, renders){
 
 		this.appended = true;
 
-		_queryString = queryString;
+		_queryString = "[hachiware-section=\"" + queryString + "\"]";
 
-		$(queryString).append(sectionHtml);
-		sectionDom = $(queryString + ">*:last-child");
+		$(_queryString).append(sectionHtml);
+		sectionDom = $(_queryString + ">*:last-child");
 
 		this.increment++;
 		sectionDom.attr("data-increment-number",this.increment);
@@ -113,5 +114,26 @@ hachiware.loadSection = function(sectionName, sections, context, renders){
 
 		return this;
 	};
+
+	this.$section = function(subSectionName){
+		var _s = new options.context.loadSection(subSectionName, options);
+		return _s;
+	};
+
+	this.$form = function(formName){
+        var _f = new options.context.loadForm(formName, options);
+        return _f;
+    };
+
+	this.$model = function(modelName){
+		var _m = new options.context.loadModel(modelName, options);
+        return _m;
+	};
+
+	this.$validator = function(validatorName){
+		var _v = null;
+        return _v;
+	};
+
 
 };

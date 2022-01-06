@@ -34,7 +34,17 @@ var Hachiware = function(){
             return resolve0();
         }
 
-        var page = new cond.loadPage(routes.url, pages, cond, sections, forms, renders, buffer);
+        var page = new cond.loadPage({
+			name: routes.url, 
+			pages: pages, 
+			context: cond, 
+			buffer: buffer,
+			sections: sections, 
+			forms: forms, 
+			renders: renders, 
+			models: models,
+			validators: validators,
+		});
 
         if(mode == "before"){
             if(page.layout){
@@ -482,7 +492,15 @@ var Hachiware = function(){
 							return false;
 						}
 
-						var form = new cond.loadForm(formName, forms);
+						var form = new cond.loadForm(formName, {
+							context: cond, 
+							buffer: buffer,
+							sections: sections, 
+							forms: forms, 
+							renders: renders, 
+							models: models,
+							validators: validators,
+						});
 
 						form.$el = $("[hachiware-form=\"" + formName + "\"]");
 
