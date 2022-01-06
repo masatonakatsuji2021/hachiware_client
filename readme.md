@@ -598,10 +598,10 @@ URL rewriting can be supported by specifying true in the second argument.
 this.$redirect("page_b", true);
 ```
 
-``$go`` returns to the previous page.
+``$back`` returns to the previous page.
 
 ```javascript
-this.$go();
+this.$back();
 ```
 
 ---
@@ -610,6 +610,7 @@ this.$go();
 
 ## # Section
 
+comming soon...!
 
 ---
 
@@ -617,11 +618,15 @@ this.$go();
 
 ## # Form
 
+comming soon...!
+
 ---
 
 <a id="model"></a>
 
 ## # Model
+
+comming soon...!
 
 ---
 
@@ -629,6 +634,7 @@ this.$go();
 
 ## # Validator
 
+comming soon...!
 
 ---
 
