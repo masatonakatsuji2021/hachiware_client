@@ -3,6 +3,8 @@
 <a href="https://github.com/masatonakatsuji2021/hachiware_client/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/masatonakatsuji2021/hachiware_client"></a>
 <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/masatonakatsuji2021/hachiware_client">
 <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/masatonakatsuji2021/hachiware_client">
+<img src="https://img.shields.io/badge/author-Nakatsuji%20Masato-brightgreen" alt="author Nakatsuji Masato">
+<img src="https://img.shields.io/badge/made%20in-Japan-brightgreen" alt="made in japan">
 
 A simple and easy-to-use SPA (Single-Page-Action) framework.
 
