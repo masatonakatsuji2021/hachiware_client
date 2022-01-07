@@ -1,7 +1,5 @@
 # Hachiware_Client
 
-<a href="https://github.com/masatonakatsuji2021/hachiware_client/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/masatonakatsuji2021/hachiware_client"></a>
-
 A simple and easy-to-use SPA (Single-Page-Action) framework.
 
 ---
