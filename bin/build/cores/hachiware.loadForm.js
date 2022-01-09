@@ -197,6 +197,21 @@ hachiware.loadForm = function(formName, options){
             return this;
         };   
 
+        this.viewErrors = function(errorValidates){
+
+            this.$el.find("[hachiware-form-error]").empty();
+
+            var colums = Object.keys(errorValidates);
+            for(var n = 0 ; n < colums.length ; n++){
+                var field = colums[n];
+                var value = errorValidates[field];
+
+                var errorText = value.join("<br>");
+                this.$el.find("[hachiware-form-error=\"" + field + "\"]").text(errorText);
+            }
+
+        };
+
     });
 
 };

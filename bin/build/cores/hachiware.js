@@ -505,7 +505,7 @@ var Hachiware = function(){
 
 						if(form.$base.submit){
 							var submitData = form.getData();
-							form.$base.submit(submitData);
+							form.$base.submit.bind(form)(submitData);
 						}
 						
 					}catch(error){

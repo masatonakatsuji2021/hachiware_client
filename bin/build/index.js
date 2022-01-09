@@ -3,6 +3,8 @@ const https = require("https");
 const path = require("path");
 const tool = require("hachiware_tool");
 
+const validatorBuild = require("hachiware_validator/build.js");
+
 module.exports = function(rootPath, args, exitResolve){
 
     this.outn("Client Build").br();
@@ -71,10 +73,13 @@ module.exports = function(rootPath, args, exitResolve){
             coreStr += buffStr + "\n";
             this.color.blue("# ").outn("Read CoreLib " + c_);
         }
+        
+        // validator build combine
+        coreStr += validatorBuild();
 
         hfs.writeFileSync(dirPath + "/_build/core.js",coreStr);
         this.color.blue("# ").outn("Write CoreScript /_build/core.js");
-        
+
         // directory script combine
         var getSources = hfs.deepReadDir(dirPath + "/srcs");
         var scriptStr = "";
