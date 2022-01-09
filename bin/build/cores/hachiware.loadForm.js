@@ -199,7 +199,7 @@ hachiware.loadForm = function(formName, options){
 
         this.viewErrors = function(errorValidates){
 
-            this.$el.find("[hachiware-form-error]").empty();
+            this.$el.find("[hachiware-form-error]").empty().removeAttr("mode-active");
 
             var colums = Object.keys(errorValidates);
             for(var n = 0 ; n < colums.length ; n++){
@@ -207,7 +207,7 @@ hachiware.loadForm = function(formName, options){
                 var value = errorValidates[field];
 
                 var errorText = value.join("<br>");
-                this.$el.find("[hachiware-form-error=\"" + field + "\"]").text(errorText);
+                this.$el.find("[hachiware-form-error=\"" + field + "\"]").attr("mode-active",true).html(errorText);
             }
 
         };
