@@ -7,6 +7,7 @@
 <a href="https://github.com/masatonakatsuji2021/hachiware_client/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/masatonakatsuji2021/hachiware_client"></a>
 <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/masatonakatsuji2021/hachiware_client">
 <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/masatonakatsuji2021/hachiware_client">
+<img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/masatonakatsuji2021/hachiware_client">
 <img src="https://img.shields.io/badge/author-Nakatsuji%20Masato-brightgreen" alt="author Nakatsuji Masato">
 <img src="https://img.shields.io/badge/made%20in-Japan-brightgreen" alt="made in japan">
 
@@ -58,6 +59,7 @@ srcs                    <= Script file installation area(".js" file)
     L forms             <= Script file installation area for forms
     L validators        <= Script file installation area for validators
     L models            <= Script file installation area for models
+    L statics           <= Script file installation area for statics
     routings.js         <= Routing script file
     setting.js          <= Initial setting script file
 index.html              <= index HTML file
@@ -79,6 +81,7 @@ It is necessary to arbitrarily change the files/directories other than the build
 |- forms|Script file installation area for forms.<br>The explanation about the form is explained [here](#form).|
 |- validators|Script file installation area for validators.<br>The explanation about the validator is explained [here](#validator).|
 |- models|Script file installation area for models.<br>The explanation about the model is explained [here](#model).|
+|- statics|Script file installation area for statics.<br>The explanation about the model is explained [here](#static).|
 |- routings.js|Routing script file.<br>Routing is explained [here](#routing).|
 |- setting.js|Initial setting script file.<br>Setting is explained [here](#setting).|
 |index.html|index HTML file.|
@@ -712,6 +715,14 @@ comming soon...!
 
 ---
 
+<a id="validator"></a>
+
+## # Validator
+
+comming soon...!
+
+---
+
 <a id="model"></a>
 
 ## # Model
@@ -720,9 +731,9 @@ comming soon...!
 
 ---
 
-<a id="validator"></a>
+<a id="static"></a>
 
-## # Validator
+## # Static
 
 comming soon...!
 
