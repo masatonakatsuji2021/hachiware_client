@@ -5,17 +5,36 @@ hachiware.loadSection = function(sectionName, options){
 		var _queryString = null;
 		var sectionDom = null;
 	
+		var sectionHtml = "";
 		if(options.renders.sections[sectionName]){
-			var sectionHtml = options.renders.sections[sectionName];
+			sectionHtml = options.renders.sections[sectionName];
 			sectionHtml = options.context.tool.base64Decode(sectionHtml);
 		}
 		else{
-			var sectionHtml = $("[hachiare-section-base=\""+ sectionName + "\"]").html();
+			sectionHtml = $("[hachiare-section-base=\""+ sectionName + "\"]").html();
 		}
 
 		this.appended = false;
 		this.increment = 0;
 		this.toggle = false;
+
+		/**
+		 * getContent
+		 * @returns 
+		 */
+		this.getContent = function(){
+			return sectionHtml;
+		};
+
+		/**
+		 * setContent
+		 * @param {*} newString 
+		 * @returns 
+		 */
+		this.setContent = function(newString){
+			sectionHtml = newString;
+			return this;
+		};
 
 		/**
 		 * open

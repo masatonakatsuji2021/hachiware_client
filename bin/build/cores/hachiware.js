@@ -19,6 +19,7 @@ var Hachiware = function(){
 	var forms = {};
     var models = {};
     var validators = {};
+	var statics = {};
 
     var renders = {
         pages: {},
@@ -43,6 +44,7 @@ var Hachiware = function(){
 			renders: renders, 
 			models: models,
 			validators: validators,
+			statics: statics,
 		});
 
         if(mode == "before"){
@@ -553,6 +555,11 @@ var Hachiware = function(){
         validators[validatorName] = params;
         return this;
     };
+
+	this.static = function(staticName, params){
+		statics[staticName] = params;
+		return this;
+	};
 
     this.setRenderPage = function(params){
         renders.pages = params;

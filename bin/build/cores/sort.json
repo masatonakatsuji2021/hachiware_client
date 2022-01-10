@@ -1,6 +1,7 @@
 [
     "hachiware.js",
     "hachiware.core.js",
+    "hachiware.static.js",
     "hachiware.page.js",
     "hachiware.section.js",
     "hachiware.model.js",

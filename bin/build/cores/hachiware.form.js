@@ -4,6 +4,20 @@ hachiware.loadForm = function(formName, options){
 
         this.$el = $("[hachiware-form=\"" + formName + "\"]");
 
+        /**
+         * getInputDom
+         * @param {*} name 
+         * @returns 
+         */
+        this.getInputDom = function(name){
+            return this.$el.find("[name=\"" + name + "\"]");
+        };
+
+        /**
+         * setData
+         * @param {*} options 
+         * @returns 
+         */
         this.setData = function(options){
 
             var colums = Object.keys(options);
@@ -81,6 +95,10 @@ hachiware.loadForm = function(formName, options){
             return this;
         };
     
+        /**
+         * getData
+         * @returns 
+         */
         this.getData = function(){
     
             var form = $("[hachiware-form=\"" + formName + "\"]");
@@ -140,6 +158,11 @@ hachiware.loadForm = function(formName, options){
             return submitData;
         };
     
+        /**
+         * setSelector
+         * @param {*} options 
+         * @returns 
+         */
         this.setSelector = function(options){
     
             var colums = Object.keys(options);
@@ -197,6 +220,10 @@ hachiware.loadForm = function(formName, options){
             return this;
         };   
 
+        /**
+         * viewErrors
+         * @param {*} errorValidates 
+         */
         this.viewErrors = function(errorValidates){
 
             this.$el.find("[hachiware-form-error]").empty().removeAttr("mode-active");

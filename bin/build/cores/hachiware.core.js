@@ -1,42 +1,33 @@
 hachiware.loadCore = function(type, coreName, options, baseMethodList, callback){
 
-    this.$type = type;
-    this.$name = coreName;
+	this.$type = type;
+
+	this.$name = coreName;
+
 	this.$base = {};
 
-    if(options[type][coreName]){
-		var colums = Object.keys(options[type][coreName]);
-		for(var n = 0 ; n < colums.length ; n++){
-			var field = colums[n];
-			var value = options[type][coreName][field];
-			
-            if(baseMethodList.indexOf(field) > -1){
-				this.$base[field] = value;
-			}
-			else{
-				this[field] = value;	
-			}
-		}
-	}
+	this.$sync = options.context.sync;
+
+	this.$tool = options.context.tool;
 
 	this.$section = function(sectionName){
-		var _s = new options.context.loadSection(sectionName, options);
-		return _s;
+		return new options.context.loadSection(sectionName, options);
 	};
 
 	this.$form = function(formName){
-        var _f = new options.context.loadForm(formName, options);
-        return _f;
+        return new options.context.loadForm(formName, options);
     };
 	
 	this.$model = function(modelName){
-		var _m = new options.context.loadModel(modelName, options);
-        return _m;
+		return new options.context.loadModel(modelName, options);
 	};
 
 	this.$validator = function(validatorName){
-		var _v = new options.context.loadValidator(validatorName, options);
-        return _v;
+		return new options.context.loadValidator(validatorName, options);
+	};
+
+	this.$static = function(staticName){
+		return options.context.loadStatic(staticName, options);
 	};
 
 	this.$redirect = function(url, replaced){
@@ -60,8 +51,27 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 
 	};
 
+	if(options[type][coreName]){
+		var colums = Object.keys(options[type][coreName]);
+		for(var n = 0 ; n < colums.length ; n++){
+			var field = colums[n];
+			var value = options[type][coreName][field];
+			
+			if(baseMethodList){
+				if(baseMethodList.indexOf(field) > -1){
+					this.$base[field] = value;
+				}
+				else{
+					this[field] = value;	
+				}	
+			}
+			else{
+				this[field] = value;	
+			}
+		}
+	}
+
     if(callback){
         callback.bind(this)();
     }
-
 };

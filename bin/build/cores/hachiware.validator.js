@@ -6,6 +6,11 @@ hachiware.loadValidator = function(validatorName, options){
 
         this.verify = _validator.verify;
 
+        this.addRule = _validator.addRule;
+
+        this.addRuleWithIndex = _validator.addRuleWithIndex;
+
+        this.deleteRule = _validator.deleteRule;
     });
 
 
