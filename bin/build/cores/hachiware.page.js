@@ -11,17 +11,6 @@ hachiware.loadPage = function(pageName, options){
 
 		this.$el = options.buffer.pageDom;
 		this.$layoutEl = options.buffer.layoutDom;
-
-		this.$redirect = function(url, replaced){
-			var _f = new options.context.loadRedirect(url, replaced);
-			return _f;
-		};
-	
-		this.$back = function(){
-			var _f = new options.context.loadBack(options.context);
-			return _f;
-		};
-
 	});
 
 };

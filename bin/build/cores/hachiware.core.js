@@ -38,7 +38,28 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 		var _v = new options.context.loadValidator(validatorName, options);
         return _v;
 	};
-    
+
+	this.$redirect = function(url, replaced){
+		if(replaced){
+			location.replace("#/" + url);
+		}
+		else{
+			location.href = "#/" + url;
+		}
+	};
+
+	this.$back = function(){
+		history.back();
+	};
+
+	this.$forward = function(){
+		history.forward();
+	};
+
+	this.$historyReset = function(){
+
+	};
+
     if(callback){
         callback.bind(this)();
     }

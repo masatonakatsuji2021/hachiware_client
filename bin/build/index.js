@@ -3,7 +3,9 @@ const https = require("https");
 const path = require("path");
 const tool = require("hachiware_tool");
 
-const validatorBuild = require("hachiware_validator/build.js");
+const syncBuildString = require("hachiware_sync/buildString.js");
+const toolBuildString = require("hachiware_tool/buildString.js");
+const validatorBuildString = require("hachiware_validator/buildString.js");
 
 module.exports = function(rootPath, args, exitResolve){
 
@@ -15,7 +17,7 @@ module.exports = function(rootPath, args, exitResolve){
 
     this.then(function(resolve){
 
-        if(hfs.existsSync(rootPath + "/__jqueryBuffer")){
+        if(hfs.existsSync(__dirname + "/__jqueryBuffer")){
             this.color.blue("# ").outn("Jquery Buffer exists.");
             return resolve();
         }
@@ -35,7 +37,7 @@ module.exports = function(rootPath, args, exitResolve){
 
             res.on("end",function(){
                 cond.color.blue("# ").outn("Jquery save... OK");
-                hfs.writeFileSync(rootPath + "/__jqueryBuffer",getData);
+                hfs.writeFileSync(__dirname + "/__jqueryBuffer",getData);
                 resolve();
             });
 
@@ -60,7 +62,7 @@ module.exports = function(rootPath, args, exitResolve){
         }
 
         // jquery set
-        var jqueryStr = hfs.readFileSync(rootPath + "/__jqueryBuffer").toString();
+        var jqueryStr = hfs.readFileSync(__dirname + "/__jqueryBuffer").toString();
         hfs.writeFileSync(dirPath + "/_build/jquery.min.js", jqueryStr);
         this.color.blue("# ").outn("Jquery Set");
 
@@ -75,7 +77,12 @@ module.exports = function(rootPath, args, exitResolve){
         }
         
         // validator build combine
-        coreStr += validatorBuild();
+        coreStr += "hachiware.sync = " + syncBuildString();
+        this.color.blue("# ").outn("Read/Write CoreScript hachiware_sync");
+        coreStr += "hachiware.tool = " + toolBuildString();
+        this.color.blue("# ").outn("Read/Write CoreScript hachiware_tool");
+        coreStr += validatorBuildString();
+        this.color.blue("# ").outn("Read/Write CoreScript hachiware_validator");
 
         hfs.writeFileSync(dirPath + "/_build/core.js",coreStr);
         this.color.blue("# ").outn("Write CoreScript /_build/core.js");

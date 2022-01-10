@@ -1,12 +1,9 @@
 [
     "hachiware.js",
-    "hachiware.sync.js",
-    "hachiware.tool.js",
-    "hachiware.loadCore.js",
-    "hachiware.loadRedirect.js",
-    "hachiware.loadpage.js",
-    "hachiware.loadsection.js",
-    "hachiware.loadModel.js",
-    "hachiware.loadValidator.js",    
-    "hachiware.loadform.js"
+    "hachiware.core.js",
+    "hachiware.page.js",
+    "hachiware.section.js",
+    "hachiware.model.js",
+    "hachiware.validator.js",    
+    "hachiware.form.js"
 ]
