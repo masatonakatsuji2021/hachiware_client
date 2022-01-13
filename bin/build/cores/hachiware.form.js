@@ -2,7 +2,10 @@ hachiware.loadForm = function(formName, options){
 
 	return new hachiware.loadCore("forms",formName,options,["submit","reset"],function(){
 
-        this.$el = $("[hachiware-form=\"" + formName + "\"]");
+        this.$el = $("[h-form=\"" + formName + "\"]");
+        if(!this.$el.length){
+            this.$el = $("[hachiware-form=\"" + formName + "\"]");
+        }
 
         /**
          * getInputDom
@@ -22,7 +25,7 @@ hachiware.loadForm = function(formName, options){
 
             var colums = Object.keys(options);
     
-            var form = $("[hachiware-form=\"" + formName + "\"]");
+            var form = this.$el;
         
             for(var n = 0 ; n < colums.length ; n++){
                 var field = colums[n];
@@ -101,7 +104,7 @@ hachiware.loadForm = function(formName, options){
          */
         this.getData = function(){
     
-            var form = $("[hachiware-form=\"" + formName + "\"]");
+            var form = this.$el;
     
             var submitData = {};
         
@@ -167,26 +170,50 @@ hachiware.loadForm = function(formName, options){
     
             var colums = Object.keys(options);
     
-            var form = $("[hachiware-form=\"" + formName + "\"]");
+            var form = this.$el;
         
             for(var n = 0 ; n < colums.length ; n++){
                 var field = colums[n];
                 var value = options[field];
     
                 var type = null;
-                if(form.find("[hachiware-form-radio=\"" + field + "\"]").length){
-                    var f_ = form.find("[hachiware-form-radio=\"" + field + "\"]");
+                if(
+                    form.find("[h-form-radio=\"" + field + "\"]").length ||
+                    form.find("[hachiware-form-radio=\"" + field + "\"]").length
+                ){
                     type = "radio";
+                    if(form.find("[h-form-radio=\"" + field + "\"]").length){
+                        var f_ = form.find("[h-form-radio=\"" + field + "\"]");
+                    }
+                    else{
+                        var f_ = form.find("[hachiware-form-radio=\"" + field + "\"]");
+                    }
                 }
-                else if(form.find("[hachiware-form-checkbox=\"" + field + "\"]").length){
-                    var f_ = form.find("[hachiware-form-checkbox=\"" + field + "\"]");
+                else if(
+                    form.find("[h-form-checkbox=\"" + field + "\"]").length || 
+                    form.find("[hachiware-form-checkbox=\"" + field + "\"]").length
+                ){
                     type = "checkbox";
+                    if(form.find("[h-form-checkbox=\"" + field + "\"]").length){
+                        var f_ = form.find("[h-form-checkbox=\"" + field + "\"]");
+                    }
+                    else{
+                        var f_ = form.find("[hachiware-form-checkbox=\"" + field + "\"]");
+                    }
                 }
-                else if(form.find("[hachiware-form-select=\"" + field + "\"]").length){
-                    var f_ = form.find("[hachiware-form-select=\"" + field + "\"]");
-                    type = "select";                
+                else if(
+                    form.find("[h-form-select=\"" + field + "\"]").length || 
+                    form.find("[hachiware-form-select=\"" + field + "\"]").length
+                ){
+                    type = "select";
+                    if(form.find("[h-form-select=\"" + field + "\"]").length){
+                        var f_ = form.find("[h-form-select=\"" + field + "\"]");
+                    }
+                    else{
+                        var f_ = form.find("[hachiware-form-select=\"" + field + "\"]");
+                    }
                 }
-    
+
                 f_.empty();
     
                 var colums2 = Object.keys(value);
@@ -226,7 +253,11 @@ hachiware.loadForm = function(formName, options){
          */
         this.viewErrors = function(errorValidates){
 
-            this.$el.find("[hachiware-form-error]").empty().removeAttr("mode-active");
+            var errorArea = this.$el.find("[h-form-error]");
+            if(!errorArea.length){
+                errorArea = this.$el.find("[hachiware-form-error]");
+            }
+            errorArea.empty().removeAttr("mode-active");
 
             var colums = Object.keys(errorValidates);
             for(var n = 0 ; n < colums.length ; n++){
@@ -234,7 +265,13 @@ hachiware.loadForm = function(formName, options){
                 var value = errorValidates[field];
 
                 var errorText = value.join("<br>");
-                this.$el.find("[hachiware-form-error=\"" + field + "\"]").attr("mode-active",true).html(errorText);
+
+                var errorArea_ = this.$el.find("[h-form-error=\"" + field + "\"]");
+                if(!errorArea_.length){
+                    errorArea_ = this.$el.find("[hachiware-form-error=\"" + field + "\"]");
+                }
+                
+                errorArea_.attr("mode-active",true).html(errorText);
             }
 
         };

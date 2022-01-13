@@ -7,8 +7,8 @@ var Hachiware = function(){
 		modeGo: true,
 		layout: null,
 		_layout:null,
-		layoutDom : $("spax-contents"),
-		pageDom: $("spax-contents"),
+		layoutDom : $("[hachiware-contents]"),
+		pageDom: $("[hachiware-contents]"),
 		uploadFiles:null,
 	};
 
@@ -141,16 +141,21 @@ var Hachiware = function(){
 					}
 				}
 
-				var contents = $("[hachiware-contents]");
+				var contents = $("[h-contents]");
+				if(!contents.length){
+					contents = $("[hachiware-contents]")
+				}
                 
                 if(renders.pages[routes.page]){
-
                     var html = renders.pages[routes.page];
                     html = cond.tool.base64Decode(html);
                     var htmlPage = html;
                 }
                 else{
-                    var htmlPage = $("template[hachiware-page=\"" + routes.page + "\"]").html();
+                    var htmlPage = $("template[h-page=\"" + routes.page + "\"]").html();
+					if(!htmlPage.length){
+						htmlPage = $("template[hachiware-page=\"" + routes.page + "\"]").html();
+					}
                 }
 
 				if(!htmlPage){
@@ -165,13 +170,24 @@ var Hachiware = function(){
                         var htmlLayout = html;
                     }
                     else{
-                        var htmlLayout = $("template[hachiware-layout=\"" + buffer.layout + "\"]").html();
+                        var htmlLayout = $("template[h-layout=\"" + buffer.layout + "\"]").html();
+						if(!htmlLayout){
+							htmlLayout = $("template[hachiware-layout=\"" + buffer.layout + "\"]").html();
+						}
                     }
 
 					if(htmlLayout){
+
 						contents.html(htmlLayout);
-						contents.find("[hachiware-page]").html(htmlPage);
-						buffer.pageDom = contents.find("[hachiware-page]");
+
+						var pageArea = contents.find("[h-page]");
+						if(!pageArea.length){
+							pageArea = contents.find("[hachiware-page]");
+						}
+						
+						pageArea.html(htmlPage);
+
+						buffer.pageDom = pageArea;
 						buffer.layoutDom = contents;
 					}
 					else{
@@ -183,8 +199,15 @@ var Hachiware = function(){
 				}
 				else{
 					if(buffer.layout){
-						contents.find("[hachiware-page]").html(htmlPage)[0];
-						buffer.pageDom = contents.find("[hachiware-page]");
+
+						var pageArea = contents.find("[h-page]");
+						if(!pageArea.length){
+							pageArea = contents.find("[hachiware-page]")
+						}
+
+						pageArea.html(htmlPage);
+
+						buffer.pageDom = pageArea;
 						buffer.layoutDom = contents;
 					}
 					else{
@@ -193,7 +216,6 @@ var Hachiware = function(){
 						buffer.layoutDom = null;
 					}
 				}
-
 
 				resolve();
 			},
@@ -488,7 +510,10 @@ var Hachiware = function(){
 				$("html").on("submit","form",function(){
 
 					try{
-						var formName = $(this).attr("hachiware-form");
+						var formName = $(this).attr("h-form");
+						if(!formName){
+							formName = $(this).attr("hachiware-form");
+						}
 
 						if(!formName){
 							return false;
@@ -508,7 +533,10 @@ var Hachiware = function(){
 							validators: validators,
 						});
 
-						form.$el = $("[hachiware-form=\"" + formName + "\"]");
+						form.$el = $("[h-form=\"" + formName + "\"]");
+						if(!form.$el.length){
+							form.$el = $("[hachiware-form=\"" + formName + "\"]");
+						}
 
 						if(form.$base.submit){
 							var submitData = form.getData();

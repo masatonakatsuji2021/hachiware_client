@@ -51,7 +51,10 @@ hachiware.loadSection = function(sectionName, options){
 
 			this.toggle = true;
 
-			_queryString = "[hachiware-section=\"" + queryString + "\"]";
+			_queryString = "[h-section=\"" + queryString + "\"]";
+			if(!$(_queryString).length){
+				_queryString = "[hachiware-section=\"" + queryString + "\"]";
+			}
 
 			$(_queryString).html(sectionHtml);
 			sectionDom = $(_queryString);
@@ -74,7 +77,10 @@ hachiware.loadSection = function(sectionName, options){
 
 			this.appended = true;
 
-			_queryString = "[hachiware-section=\"" + queryString + "\"]";
+			_queryString = "[h-section=\"" + queryString + "\"]";
+			if(!$(_queryString).length){
+				_queryString = "[hachiware-section=\"" + queryString + "\"]";
+			}
 
 			$(_queryString).append(sectionHtml);
 			sectionDom = $(_queryString + ">*:last-child");
