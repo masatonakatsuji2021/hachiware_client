@@ -2,7 +2,6 @@ hachiware.setting({
 
 	load: function(){
 
-		console.log("start");
-
+		console.log("client APP start");
 	},
 });

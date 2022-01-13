@@ -1,7 +1,9 @@
+/*
 hachiware.form("test",{
 
-    submit: function(data){
+    submit: function(inputData){
 
-        console.log(data);
+        console.log(inputData);
     },
 })
+*/

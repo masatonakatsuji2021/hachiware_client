@@ -1,3 +1,4 @@
+/*
 hachiware.model("test",{
 
     run: function(){
@@ -7,3 +8,4 @@ hachiware.model("test",{
     },
 
 });
+*/

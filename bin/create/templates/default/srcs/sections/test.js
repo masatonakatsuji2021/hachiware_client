@@ -1,3 +1,4 @@
+/*
 hachiware.section("test",{
 
     open: function(){
@@ -5,3 +6,4 @@ hachiware.section("test",{
         console.log("Section Test Open");
     },
 });
+*/

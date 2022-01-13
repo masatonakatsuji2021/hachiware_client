@@ -4,8 +4,6 @@ hachiware.page("error",{
 
     open: function(){
 
-        console.log("Page Open Error");
-
+        console.log("[Error] Page Open");
     },
-
 });

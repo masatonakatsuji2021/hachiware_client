@@ -1,15 +1,10 @@
 hachiware.page("app",{
 
-    layout: "default",
-
-    before: function(){
-
-        console.log("Page Before App");
-    },
+    layout:"default",
 
     open: function(){
 
-        console.log("Page Open App");
+        console.log("[APP] Open");
     },
 
 });

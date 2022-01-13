@@ -4,12 +4,12 @@ hachiware.page("main",{
 
     before: function(){
 
-        console.log("Page Before Main.");
+        console.log("[Main] Page Before.");
     },
 
     open: function(){
 
-        console.log("Page Open Main.");
+        console.log("[Main] Page Open");
     },
 
 });
