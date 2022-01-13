@@ -1,3 +1,16 @@
+/**
+ * ====================================================================
+ * Hachiware_Client
+ * 
+ * A simple and easy-to-use SPA (Single-Page-Action) framework.
+ * 
+ * Author : Nakatsuji Masato 
+ * Copylight (C) 2022 Nakatsuji Masato.
+ * GitHub : https://github.com/masatonakatsuji2021/hachiware_client
+ * 
+ * ====================================================================
+ */
+
 const hfs = require("hachiware_fs");
 const path0 = require("path");
 
