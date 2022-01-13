@@ -1,0 +1,23 @@
+<h2>Validator Test Sample</h2>
+<style>
+.error[mode-active]{
+    padding:5px;
+    margin:3px 0;
+    background:#c00;
+}
+</style>
+<form hachiware-form="validate_test">
+    <dl>
+        <dt>name</dt>
+        <dd>
+            <input type="text" name="name">
+            <div h-form-error="name" class="error"></div>
+        </dd>
+        <dt>value</dt>
+        <dd>
+            <input type="text" name="value">
+            <div h-form-error="value" class="error"></div>
+        </dd>
+    </dl>
+    <input type="submit" value="Submit">
+</form>
