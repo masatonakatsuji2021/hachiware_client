@@ -31,12 +31,14 @@ var Hachiware = function(){
 
 	const loadingPage = function(resolve0, routes, mode, noLayouted, completeCallback){
 
-        if(!pages[routes.url]){
+        if(!pages[routes.page]){
             return resolve0();
         }
 
-		var page = new cond.loadPage(routes.url, {
+		var page = new cond.loadPage(routes.page, {
 			pages: pages, 
+			routes: routes,
+			settings: settings,
 			context: cond, 
 			buffer: buffer,
 			sections: sections, 
@@ -63,8 +65,11 @@ var Hachiware = function(){
                 loadingPage(
                     resolve2, 
                     { 
-                        url: page.extend, 
+						base: routes.base,
+						mode: routes.mode,
+                        page: page.extend, 
                         aregment: routes.aregment,
+						query: routes.query,
                     } , 
                     mode, 
 					noLayouted,
@@ -111,7 +116,7 @@ var Hachiware = function(){
 
 	const renderings = function(url, backUrl){
 
-		var routes = searchRendering(url);
+		var routes = HachiwareRouting("client",url, routings);
 
 		buffer.layout = null;
 
@@ -121,7 +126,7 @@ var Hachiware = function(){
 					return resolve();
 				}
 		
-				var backRoutes = searchRendering(backUrl);
+				var backRoutes = HachiwareRouting("client", backUrl, routings);
 
                 loadingPage(resolve, backRoutes, "close", true);
 			},
@@ -138,14 +143,14 @@ var Hachiware = function(){
 
 				var contents = $("[hachiware-contents]");
                 
-                if(renders.pages[routes.url]){
+                if(renders.pages[routes.page]){
 
-                    var html = renders.pages[routes.url];
+                    var html = renders.pages[routes.page];
                     html = cond.tool.base64Decode(html);
                     var htmlPage = html;
                 }
                 else{
-                    var htmlPage = $("template[hachiware-page=\"" + routes.url + "\"]").html();
+                    var htmlPage = $("template[hachiware-page=\"" + routes.page + "\"]").html();
                 }
 
 				if(!htmlPage){
@@ -203,7 +208,7 @@ var Hachiware = function(){
 		]);
 
 	}.bind(this);
-
+/*
 	const searchRendering = function(targetUrl){
 
 		const convertRoutings = function(params){
@@ -364,7 +369,7 @@ var Hachiware = function(){
 			};
 		}
 	};
-
+*/
 
 	this.redirect = function(url){
 

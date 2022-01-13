@@ -5,6 +5,7 @@ const tool = require("hachiware_tool");
 
 const syncBuildString = require("hachiware_sync/buildString.js");
 const toolBuildString = require("hachiware_tool/buildString.js");
+const routingBuildString = require("hachiware_routing/buildString.js");
 const validatorBuildString = require("hachiware_validator/buildString.js");
 
 module.exports = function(rootPath, args, exitResolve){
@@ -81,6 +82,8 @@ module.exports = function(rootPath, args, exitResolve){
         this.color.blue("# ").outn("Read/Write CoreScript hachiware_sync");
         coreStr += "hachiware.tool = " + toolBuildString();
         this.color.blue("# ").outn("Read/Write CoreScript hachiware_tool");
+        coreStr += "const HachiwareRouting = " + routingBuildString();
+        this.color.blue("# ").outn("Read/Write CoreScript hachiware_routing");
         coreStr += validatorBuildString();
         this.color.blue("# ").outn("Read/Write CoreScript hachiware_validator");
 
