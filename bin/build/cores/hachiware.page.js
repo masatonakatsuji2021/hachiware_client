@@ -1,6 +1,15 @@
 hachiware.loadPage = function(pageName, options){
 	
-	return new hachiware.loadCore("pages", pageName, options,["before","open","close"],function(){
+	var baseList = [
+		"before",
+		"sync_before",
+		"open",
+		"sync_open",
+		"close",
+		"sync_close",
+	];
+
+	return new hachiware.loadCore("pages", pageName, options, baseList,function(){
 
 		if(options.buffer.modeGo){
 			this.$mode = "next";

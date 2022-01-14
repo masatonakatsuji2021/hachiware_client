@@ -2,6 +2,9 @@ var __uploadFileBuffer = {};
 	
 var Hachiware = function(){
 
+	const MODE_HASH = "hash";
+	const MODE_QUERY = "query";
+
 	var buffer = {
 		nowUrl:null,
 		modeGo: true,
@@ -27,6 +30,8 @@ var Hachiware = function(){
         layouts: {},
     };
 
+	var loadPageCache = {};
+
     var cond = this;
 
 	const loadingPage = function(resolve0, routes, mode, noLayouted, completeCallback){
@@ -35,28 +40,33 @@ var Hachiware = function(){
             return resolve0();
         }
 
-		var page = new cond.loadPage(routes.page, {
-			pages: pages, 
-			routes: routes,
-			settings: settings,
-			context: cond, 
-			buffer: buffer,
-			sections: sections, 
-			forms: forms, 
-			renders: renders, 
-			models: models,
-			validators: validators,
-			statics: statics,
-		});
+		if(loadPageCache[routes.page]){
+			var page = loadPageCache[routes.page];
+		}
+		else{
+			var page = new cond.loadPage(routes.page, {
+				pages: pages, 
+				routes: routes,
+				settings: settings,
+				context: cond, 
+				buffer: buffer,
+				sections: sections, 
+				forms: forms, 
+				renders: renders, 
+				models: models,
+				validators: validators,
+				statics: statics,
+			});
+			loadPageCache[routes.page] = page;
+		}
 
         if(mode == "before"){
-            if(page.layout){
+            if(page.layout || page.layout === null){
                 buffer.layout = page.layout;
             }    
         }
 
-        cond.sync.sync([
-			function(resolve2){
+        cond.sync.then(function(resolve2){
 
                 if(!page.extend){
                     return resolve2();
@@ -76,40 +86,44 @@ var Hachiware = function(){
 					function(parent){
 						page.$parent = parent;
 					});
-            },
-            function(){
 
-                if(!page.$base[mode]){
-                    return resolve0();
-                }
+        }).then(function(){
 
-                var syncName = "sync"+mode.substring(0,1).toUpperCase() + mode.substring(1);
+            var syncName = "sync_" + mode;
 
-                var pageCallback = page.$base[mode].bind(page);
+            if(
+				!page.$base[syncName] && 
+				!page.$base[mode]
+			){
+				return resolve0();
+            }
 
-                if(page[syncName]){
-                    if(routes.aregment){
-                        pageCallback(resolve0, routes.aregment);
-                    }
-                    else{
-                        pageCallback(resolve0);
-                    }
-                }
-                else{
-                    if(routes.aregment){
-							pageCallback(routes.aregment);
-						}
-						else{
-							pageCallback();
-						}
-						resolve0();
-					}
+			if(page.$base[syncName]){
+				var pageCallback = page.$base[syncName].bind(page);
+
+				if(routes.aregment){
+					pageCallback(resolve0, routes.aregment);
+				}
+				else{
+					pageCallback(resolve0);
+				}
+			}
+			else{
+				var pageCallback = page.$base[mode].bind(page);
+
+				if(routes.aregment){
+					pageCallback(routes.aregment);
+				}
+				else{
+					pageCallback();
+				}
+				resolve0();
+			}
 					
-					if(completeCallback){
-						completeCallback(page);
-					}
-				},
-			],this);
+			if(completeCallback){
+				completeCallback(page);
+			}
+		}).start();
 
         return page;
     };
@@ -119,6 +133,12 @@ var Hachiware = function(){
 		var routes = HachiwareRouting("client",url, routings);
 
 		buffer.layout = null;
+
+		if(settings.defaultLayout){
+			buffer.layout = settings.defaultLayout;
+		}
+
+		loadPageCache = {};
 
 		this.sync.sync([
 			function(resolve){
@@ -135,8 +155,23 @@ var Hachiware = function(){
 			},
 			function(resolve){
 
-				if("#" + url != location.hash){
-					if(location.hash){
+				if(settings.urlMode == MODE_HASH){
+					var turl = location.hash.substring(1);
+				}
+				else if(settings.urlMode == MODE_QUERY){
+					var turl = location.search.replace("?q=","");
+				}
+
+				if(url.substring(0,1) == "/"){
+					url = url.substring(1);
+				}
+
+				if(turl.substring(0,1) == "/"){
+					turl = turl.substring(1);
+				}
+
+				if(url != turl){
+					if(turl){
 						return;
 					}
 				}
@@ -198,6 +233,7 @@ var Hachiware = function(){
 
 				}
 				else{
+
 					if(buffer.layout){
 
 						var pageArea = contents.find("[h-page]");
@@ -230,232 +266,98 @@ var Hachiware = function(){
 		]);
 
 	}.bind(this);
-/*
-	const searchRendering = function(targetUrl){
-
-		const convertRoutings = function(params){
-
-			var response = {};
-
-			var colums = Object.keys(params);
-			for(var n = 0 ; n < colums.length ; n++){
-				var key = colums[n];
-				var value = params[key];
-
-				if(typeof value == "string"){
-					response[key] = value;
-				}
-				else{
-					var buff = convertRoutings(value);
-					var colums2 = Object.keys(buff);
-					for(var n2 = 0 ; n2 < colums2.length ; n2++){
-						var key2 = colums2[n2];
-						var value2 = buff[key2];
-
-						var url = key;
-						if(key2 != "/"){
-							url += key2;
-						}
-
-						response[url] = value2;
-					}
-				}
-			}
-
-			return response;
-		};
-
-		const searchErrorPagePath = function(targetUrl){
-
-			var declearErrPagePath = null;
-
-			var colums = Object.keys(routings.error);
-			for(var n = 0 ; n < colums.length ; n++){
-				var key = colums[n];
-				var value = routings.error[key];
-
-				if(targetUrl == key){
-					declearErrPagePath = value;
-					break;
-				}
-			}
-
-			if(!declearErrPagePath){
-				var t2 =targetUrl.split("/");
-				t2.shift();
-				t2 = t2.join("/");
-				if(!t2){
-					t2 = "/";
-				}
-				var search = searchErrorPagePath(t2);
-				declearErrPagePath = search;
-			}
-		
-			return declearErrPagePath;
-		};
-
-		var routingBuffer = convertRoutings(routings.release);
-		
-		var colums = Object.keys(routingBuffer);
-
-		var checkList = {};
-
-		var aregments = [];
-
-		for(var n = 0 ; n < colums.length ; n++){
-			var url = colums[n];
-
-			var urls = url.split("/");
-			if(!urls[urls.length-1]){
-				urls.pop();
-			}
-
-			var targetUrls = targetUrl.split("/");
-			if(!targetUrls[targetUrls.length-1]){
-				targetUrls.pop();
-			}	
-
-			checkList[url] = [];
-
-			for(var n2 = 0 ; n2 < urls.length ; n2++){
-				var urld1 = urls[n2];
-				var urld2 = targetUrls[n2];
-				
-				if(urld1 == urld2){
-					checkList[url].push(1);
-				}
-				else{
-					if(urld1.indexOf("{:") > -1 && urld1.indexOf("}") > -1){
-						if(urld2){
-							var argKey = urld1.split("{:").join("").split("}").join("").split("?").join("");
-							aregments[argKey]  = urld2;
-							checkList[url].push(1);
-						}
-						else{
-							if(urld1.indexOf("?") > -1){
-								targetUrls[n2] = "??";
-								checkList[url].push(1);
-							}
-							else{
-								checkList[url].push(0);
-							}
-						}
-					}
-					else{
-						checkList[url].push(0);
-					}
-				}
-			}
-
-			if(urls.length == targetUrls.length){
-				checkList[url].push(1);
-			}
-			else{
-				checkList[url].push(0);
-			}
-		}
-
-		var desitionUrl = null;
-		var colums = Object.keys(checkList);
-		for(var n = 0 ; n < colums.length ; n++){
-			var url = colums[n];
-			var value = checkList[url];
-
-			var juge = true;
-			for(var n2 = 0 ; n2 < value.length ; n2++){
-				var v_ = value[n2];
-
-				if(!v_){
-					juge = false;
-					break;
-				}
-			}
-
-			if(juge){
-				desitionUrl = url;
-			}
-		}
-
-		if(desitionUrl){
-			return {
-				url:routingBuffer[desitionUrl],
-				aregment:aregments,
-			};
-		}
-		else{
-			return {
-				url:searchErrorPagePath(targetUrl),
-                aregment:{
-                    exception:"page not found",
-                }
-			};
-		}
-	};
-*/
 
 	this.redirect = function(url){
 
 		var beforeUrl = buffer.nowUrl;
-
 		url = url.substring(1);
-
 		if(!url){
 			url = "/";
 		}
-
 		renderings(url, beforeUrl);
 	};
 
 	this.load = function(){
 
+		if(!settings.urlMode){
+			settings.urlMode = MODE_HASH;
+		}
+
 		var firstUrl = "/";
-		if(location.hash){
-			firstUrl = location.hash;
-			firstUrl = firstUrl.substring(1);
+		if(settings.urlMode == MODE_HASH){
+			if(location.hash){
+				firstUrl = location.hash;
+				firstUrl = firstUrl.substring(1);
+			}
+		}
+		else if(settings.urlMode == MODE_QUERY){
+			if(location.search){
+				var url = location.search.replace("?q=","");
+				firstUrl = url;
+			}
 		}
 
 		this.sync.sync([
 			function(resolve){
 
-				if(!settings.load){
+				if(
+					!settings.sync_load &&
+					!settings.load
+				){
 					return resolve();
 				}
 				
-				var load = settings.load.bind(settings);
-
-				if(settings.syncLoad){
+				if(settings.sync_load){
+					var load = settings.sync_load.bind(settings);
 					load(resolve);
 				}
 				else{
+					var load = settings.load.bind(settings);
 					load();
 					resolve();
 				}
 			},
-			function(resolve){
+			function(){
 
 				renderings(firstUrl);
 
 				window.addEventListener('popstate', function(e){
-					cond.redirect(location.hash);
+					if(settings.urlMode == MODE_HASH){
+						cond.redirect(location.hash);
+					}
+					else if(settings.urlMode == MODE_QUERY){
+						cond.redirect(location.search.replace("?q=",""));
+					}
 				});
 
 				$("html").on("click","a[href]", function(){
+
+					var url = $(this).attr("href");
+									
 					buffer.modeGo = true;
-				});
 
-				$("html").on("click","a[url]",function(){
+					if(url.substring(0,1) == "/"){
 
-					var url = $(this).attr("url");
+						if(url[url.length-1] == "/"){
+							url = url.substring(0, url.length-1);
+						}
 
-					if(url[url.length-1] == "/"){
-						url = url.substring(0, url.length-1);
+						if(settings.urlMode == MODE_HASH){
+							location.hash = "#" + url;
+						}
+						else if(settings.urlMode == MODE_QUERY){
+							if(url){
+								history.pushState(null, null, "index.html?q=" + url);
+							}
+							else{
+								history.pushState(null, null, "index.html");
+							}
+							cond.redirect(url);
+						}
+
+						return false;
 					}
 
-					buffer.modeGo = true;
-
-					location.hash = url;
-
-					return false;
 				});
 
 				$("html").on("click","a[back]",function(){
