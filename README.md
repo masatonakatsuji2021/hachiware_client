@@ -426,19 +426,15 @@ hachiware.page("main",{
 });
 ```
 
-To perform synchronization processing temporarily, set ``syncBefore`` to true and write the code as shown below.    
-Specify ``resolve`` as an argument as a point, and execute ``resolve`` to move to the next process.
+To perform synchronization processing temporarily, change the method name to ``sync_before`` and specify ``resolve`` as an argument as a point, and execute "resolve" at any time to proceed to the next process.
 
-The following is an example, after waiting for 1 second, "Page Before Main" is output to the console, the resolve method is executed.
 
 ```javascript
 hachiware.page("main",{
 
     extend: "app",
 
-    syncBefore: true,
-
-    before: function(resolve){
+    sync_before: function(resolve){
 
         setTimeout(function(){
 
@@ -475,8 +471,7 @@ hachiware.page("main",{
 });
 ```
 
-To perform synchronization processing temporarily, set ``syncOpen`` to true and write the code as shown below.    
-Specify ``resolve`` as an argument as a point, and execute ``resolve`` to move to the next process.
+To perform synchronization processing temporarily, change the method name to ``sync_open`` and specify ``resolve`` as an argument as a point, and execute "resolve" at any time to proceed to the next process.
 
 The following is an example. After waiting for 1 second and displaying the current time on the screen, the resolve method is executed.
 
@@ -485,9 +480,7 @@ hachiware.page("main",{
 
     extend: "app",
 
-    syncOpen: true,
-
-    open: function(resolve){
+    sync_open: function(resolve){
 
         setTimeout(function(){
 
@@ -523,8 +516,7 @@ hachiware.page("main",{
 });
 ```
 
-To perform synchronization processing temporarily, set ``syncClose`` to true and write the code as shown below.    
-Specify ``resolve`` as an argument as a point, and execute ``resolve`` to move to the next process.
+To perform synchronization processing temporarily, change the method name to ``sync_close`` and specify ``resolve`` as an argument as a point, and execute "resolve" at any time to proceed to the next process.
 
 The following is an example. After waiting 1 second to leave the page, the resolve method is executed after the console output.
 
@@ -533,9 +525,7 @@ hachiware.page("main",{
 
     extend: "app",
 
-    syncClose: true,
-
-    close: function(resolve){
+    sync_close: function(resolve){
 
         setTimeout(function(){
 
