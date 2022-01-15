@@ -19,19 +19,19 @@ A simple and easy-to-use SPA (Single-Page-Action) framework.
 
 First, install the npm package with the following command.
 
-```
+```code
 npm i hachiware_client
 ```
 
 All you have to do is add the package require code to index.js etc. and you're ready to go.
 
-```
+```javascript
 const client = require("hachiware_client");
 ```
 
 Optionally create a directory, create a index.js file and write the following code.
 
-```
+```javascript
 const client = require("hachiware_client");
 client(__dirname);
 ```
@@ -112,7 +112,7 @@ The basic flow of creating a SPA project is as follows
 The dedicated console will be displayed with the following command.
 
 ```
-$ node . 
+> node . 
 *** Hachiware Client **************
 
 Command Input: :
@@ -124,60 +124,112 @@ The commands currently available are as follows.
 
 |command|Overview|
 |:--|:--|
-|create [templateName] [directoryName]|Create a SPA project from a template.|
-|build [directoryName]|Build the SPA project.<br>By executing the build, it will be converted into a form that can be displayed in the browser.|
+|create [-image={image name}] [-project={project name}] [-platform={platform}] [-build={build flg}]|Create a SPA project from a image.|
+|build [-project={project name}]|Build the SPA project.<br>By executing the build, it will be converted into a form that can be displayed in the browser.|
 
 You can also short the command on a single line as shown below.  
 Example of creating a SPA project.
 
 ```
-node . create default test
+> node . create
 ```
 
 ---
 
 ## # Creating a SPA project
 
-```
-node . create default test
-```
-
-After creating a new test directory with the above command, export the contents of the default template.  
-After executing the command, the following result will be output.
+To create a new SPA project, use the ``node .create`` command.
 
 ```
-$ node . create default test
+> node . create
+```
+
+After executing the command, the dialogue will proceed as shown below, and after selecting "y" at the end,
+A new SPA project is created.
+
+```
+> node . create
 *** Hachiware Client **************
 
 Client Create
+Create a new SPA project.
 
-Use Template = default
-Directory(Project) Name = test
-Mkdir ****/client/_test
-Mkdir ****/client/_test/assets
-Mkdir ****/client/_test/htmls
-Mkdir ****/client/_test/htmls/layouts
-<< Omitted below >>
+Q. Specify the Image Name to create. (default) :
+Q. If you have a directory path to create a SPA project, please specify it. () : 
+Q. If you have a platform to use, please specify. [web, electron, cordova, nw.js] (web) :
+Q. Do you want to run the build after completing the SPA project creation? [y/n] (y)  :
 
-.....Complete
+  Image                            : default
+  SPA Project Name                 : 
+  Platform                         : web
+  Build after creation is complete : true
+
+Q.Create a SPA project with the above contents. [y/n] (y) : 
+Mkdir ********************/20220115
+Mkdir ********************/assets
+Mkdir ********************/assets/img/
+.....
+.....
+
+.....Completed!
 
 ... BYE.
 ```
 
-This will export the test directory and the contents of the template specified in it.
+You can also omit the dialogue by specifying an option.  
+Dialogue is omitted only for the set options.
+
+```
+> node . create -image="default" -project="test" -platform="web" -build
+```
+
+After creating a new test directory with the above command, export the contents of the default image.  
+After executing the command, the following result will be output.
+
+```
+> node . create -image="default" -project="test" -platform="web" -build
+*** Hachiware Client **************
+
+
+Client Create
+Create a new SPA project.
+
+
+  Image                            : default
+  SPA Project Name                 : test
+  Platform                         : web
+  Build after creation is complete : true
+
+Q.Create a SPA project with the above contents. [y/n] (y) :
+Mkdir **********/test1
+Mkdir **********/test1/assets
+Mkdir **********/test1/assets/css
+Mkdir **********/test1/assets/img
+Mkdir **********/test1/htmls
+.....
+.....
+
+
+.....Completed!
+
+... BYE.
+```
+This will export the test directory and the contents of the image specified in it.
 
 ---
 
 ## # Build SPA project
 
 ```
-node . build test
+> node . build
 ```
 
 The build will be executed for the directory (SPA project) specified by the above command.
+You can optionally specify the SPA project name. If not specified,   
+the SPA project provided directly below will be built.
 
 ```
-$ node . build test
+> node . build -project="test"
 *** Hachiware Client **************
 
 Client Build
@@ -188,7 +240,8 @@ Client Build
 # Read CoreLib hachiware.js
 # Read CoreLib hachiware.sync.js
 # Read CoreLib hachiware.tool.js
-<< Omitted below >>
+......
+......
 
 Build Complete!
 
@@ -213,6 +266,10 @@ hachiware.routing({
     release: {
         "/":"main",
         "/page_a":"page_a",
+        "/page_b": {
+            "/":"page_b/index",
+            "/detail/{:id}":"page_b/detail",
+        },
     },
     error: {
         "/":"error",
@@ -311,7 +368,7 @@ The outline of the life cycle when moving pages is as follows.
 
 ### - Page Layout
 
-The layout here refers to a template of the screen area commonly used such as the header footer.  
+The layout here refers to a image of the screen area commonly used such as the header footer.  
 By specifying the layout, you can easily specify or change the common area used for each page.
 
 When setting the layout of the page, specify ``layout``. You will need to create a layout file.

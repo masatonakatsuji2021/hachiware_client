@@ -23,9 +23,7 @@ const validatorBuildString = require("hachiware_validator/buildString.js");
 
 module.exports = function(rootPath, args, exitResolve){
 
-    this.outn("Client Build").br();
-
-    args.shift();
+    this.outn("Client Build").outn("Start building the SPA project.").br();
 
     var dirPath = null;
 
@@ -59,8 +57,8 @@ module.exports = function(rootPath, args, exitResolve){
 
     }).then(function(resolve){
 
-        if(args[0]){
-            dirPath = rootPath + "/" + args[0];
+        if(args.getOpt("project")){
+            dirPath = rootPath + "/" + args.getOpt("project");
         }
         else{
             dirPath = rootPath;

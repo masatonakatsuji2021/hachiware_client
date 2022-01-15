@@ -31,7 +31,7 @@ module.exports = function(rootPath, command){
 
         var args = this.getArgs();
 
-        if(args){
+        if(args.length){
             if(!csls.bind(this)(rootPath, args, resolve)){
                 resolve();
             }
@@ -40,13 +40,14 @@ module.exports = function(rootPath, command){
 
         this.in("Command Input:", function(value,retry){
 
-            if(!value){
-                this.color.red("[ERROR] ").ount("command not found. retry.");
+            var args = this.convertArgs(value);
+            
+            if(!args.length){
+                this.color.red("[ERROR] ").outn("command not found. retry.");
                 return retry();
             }
 
-            value = value.split(" ");
-            if(!csls.bind(this)(rootPath, value, resolve)){
+            if(!csls.bind(this)(rootPath, args, resolve)){
                 return retry();
             }
 
