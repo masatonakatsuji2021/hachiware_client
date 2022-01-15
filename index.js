@@ -14,20 +14,13 @@
 const CLI = require("hachiware_cli");
 const csls = require("./bin/");
 
-module.exports = function(rootPath, command){
+module.exports = function(rootPath){
 
     var cli = new CLI();
 
     cli.then(function(resolve){
-
+        
         this.outn("*** Hachiware Client **************").br();
-
-        if(command){
-            if(!csls.bind(this)(rootPath, command, resolve)){
-                resolve();
-            };
-            return;
-        }
 
         var args = this.getArgs();
 
