@@ -32,6 +32,8 @@ var Hachiware = function(){
 
 	var loadPageCache = {};
 
+	var hachiwareRouting = null;
+
     var cond = this;
 
 	const loadingPage = function(resolve0, routes, mode, noLayouted, completeCallback){
@@ -130,7 +132,11 @@ var Hachiware = function(){
 
 	const renderings = function(url, backUrl){
 
-		var routes = HachiwareRouting("client",url, routings);
+		if(!hachiwareRouting){
+			hachiwareRouting = new HachiwareRouting("client",routings);
+		}
+
+		var routes = hachiwareRouting.get(url);
 
 		buffer.layout = null;
 
@@ -146,7 +152,7 @@ var Hachiware = function(){
 					return resolve();
 				}
 		
-				var backRoutes = HachiwareRouting("client", backUrl, routings);
+				var backRoutes = hachiwareRouting.get(backUrl);
 
                 loadingPage(resolve, backRoutes, "close", true);
 			},
