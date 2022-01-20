@@ -1282,6 +1282,21 @@ On the HTML side, specify the display destination specified in the above script 
 
 ### - append - Add section.
 
+Additional section is displayed.
+
+```javascript
+hachiware.page("main",{
+
+    open: function(){
+
+        this.$el.find(".btn-add").on("click",function(){
+
+            this.$section("test").append("list");
+        });
+    },
+
+});
+```
 
 Details will be described later..
 
