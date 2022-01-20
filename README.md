@@ -290,10 +290,13 @@ Routing is specified in the ``srcs/routing.js`` file as follows.
 hachiware.routing({
     release: {
         "/":"main",
-        "/page_a":"page_a",
-        "/page_b": {
-            "/":"page_b/index",
-            "/detail/{:id}":"page_b/detail",
+        "/page_a": "page_a",
+        "/page_b": "page_b/index",
+        "/page_b/detail/{:id}": "page_b/detail",
+        "/page_b/edit/{:id?}": "page_b/edit",
+        "/page_c": {
+            "/":"page_c/index",
+            "/detail/{:id}":"page_c/detail",
         },
     },
     error: {
@@ -302,37 +305,191 @@ hachiware.routing({
 });
 ```
 
-Details will be described later...
+Routing can be broadly divided into release and error.
+
+### - Basic routing
+
+Basic routing is specified in release in the form of {URL}: {display page name}.
+
+```javascript
+release: {
+    //....
+    "/": "main",
+    "/page_a": "page_a",
+    //....
+},
+```
+
+In the above case, the URL is ``/`` (Top page),  
+``htmls/pages/main.html`` as HTML, ``scrs/pages/main.js`` as the script file
+Install each.
+
+Even if the URL is ``/page_a``,  
+``htmls/pages/page_a.html`` as HTML, ``scrs/pages/page_a.js`` as the script file
+Install each.
+
+The page name can be specified across the directory.
+
+```javascript
+release: {
+    //....
+    "/page_b": "page_b/index",
+    //....
+},
+```
+
+In the above case,  
+Set ``htmls/pages/page_b/index.html`` as HTML and ``scrs/pages/page_b/index.js`` as script file.
+
+### - Routing with arguments
+
+You can also specify a dynamic value as an argument to the URL.    
+The argument part is specified by ``{: {argument name}}``.
+
+For example, in the following case,  
+The requested URL is like ``/page_b/detail/1`` or ``/page_b/detail/2``
+The ``{:id}`` part allows you to assign dynamic values.
+
+```javascript
+release: {
+    //....
+    "/page_b/detail/{:id}": "page_b/detail",
+    //....
+},
+```
+
+If you want to get the argument value, one way is to get it with the callback argument on page.
+
+```javascript
+hachiware.page("page_b",{
+
+    open: function(args){
+
+        conosle.log(args);
+    },
+
+});
+```
+
+If synchronization is supported, the argument position will shift.
+
+```javascript
+hachiware.page("page_b",{
+
+    sync_open: function(resolve, args){
+
+        conosle.log(args);
+
+        resolve();
+    },
+
+});
+```
+
+Another way to get it is to use the common variable ``this.$Routes.aregment`` of the loadCore class.  
+This method can also be obtained from places other than page.
+
+```javascript
+console.log(this.$routes.aregment);
+```
+
+### - Arbitrary argument specification
+
+In the above argument routing, you must put some value in the argument specification.
+
+To specify any argument, specify ``{:{argument name}?}`` and "?" After the argument name.
+
+```javascript
+release: {
+    //....
+    "/page_b/edit/{:id?}": "page_b/edit",
+    //....
+},
+```
+
+You can now access either ``/page_b/edit`` or ``/page_b/edit/3``.
+
+### - Routing scope setting
+
+By using scopes in routing, you can group URLs in the upper hierarchy.
+
+```javascript
+release: {
+    //....
+    "/page_c": {
+        "/":"page_c/index",
+        "/detail/{:id}":"page_c/detail",
+    },
+    //....
+},
+```
+
+In the above case, the routing is the same as below, but ``/page_c`` can be omitted in the description.
+
+```javascript
+release: {
+    //....
+    "/page_c":"page_c/index",
+    "/page_c/detail/{:id}":"page_c/detail",
+    //....
+},
+```
+
+If the hierarchical structure becomes more complicated, try summarizing each routing with a scope.
+
+### - Error routing
+
+You can move to the error page in case the page does not exist or an unexpected error occurs.
+
+Error routing is specified in error as follows.
+
+```javascript
+error: {
+    "/": "error",
+},
+```
+
+The description method does not change the basic routing, only the specified location has changed from within release to within error.
+
+You can also change the error page for each URL.  
+In the following cases, URLs after ``/page_a`` will display an error page dedicated to page_a.
+
+```javascript
+error: {
+    "/": "error",
+    "/page_a": "page_a/error",
+},
+```
 
 ---
 
 <a id="objects"></a>
 
-## # Clientオブジェクト構造
+## # Client object structure
 
-Hachiware Clientではページやセクション、フォーム等の各ブロックごとに応じた箇所をオブジェクトという形で形成されています。
-(以後clientオブジェクトとします)
+In Hachiware Client, the parts corresponding to each block such as pages, sections, forms, etc. are formed in the form of objects.
+(From now on, to avoid confusion with other objects, the notation will be the client object.)
 
-アプリ開発者はこのclientオブジェクトを必要な時に追加して組み合わせて、一つのSPAを実現します。
+App developers add and combine this client object when needed to achieve a single SPA.
 
-clientオブジェクトを作成する場合は、ソースの可読性および保守性を考慮して
-指定されたディレクトリ内、かつソースファイルを個々のオブジェクトごとに分離すること。
+When creating a client object, consider the readability and maintainability of the source.  
+Separate source files for individual objects in the specified directory.
 
-(上記は守らなくてもビルドは可能ですが、コード構造が混在してしまう恐れがあります)
+(It is possible to build even if the above is not observed, but there is a high possibility that the code structure will be complicated.)
 
-デフォルトで構成されるclientオブジェクトは以下の通りです。
+The client objects configured by default are:
 
 |client-object name|overview|
 |:--|:--|
-|[Page](#page)|ページ表示単位のclientオブジェクト。<b>ページを追加する場合は必ずこのオブジェクトを追加すること|
-|[Section](#section)|ページ内でさらに個々のパーツに分離されたclientオブジェクト。<br>部品化により別ページでの再利用も可能|
-|Form|フォーム送信時やリセット時のコールバック、フォーム内の初期値または選択肢を設定するためのclientオブジェクト|
-|Model|ビジネスロジックとしてのclientオブジェクト|
-|Validator|入力データの検証チェック用に使用するclientオブジェクト|
-|Static|静的データを格納するためのclientオブジェクト<br>ページ移動間や別種類のclientオブジェクトへの参照に使用|
+|[Page](#page)|Client object for each page display.<b>Be sure to add this object when you add a page.|
+|[Section](#section)|A client object that is further separated into individual parts within the page.<br>Can be reused on another page by making parts.|
+|[Form](#form)|Client object to set callbacks when submitting or resetting a form, initial values or choices in the form.|
+|[Model](#model)|Client object as business logic.|
+|[Validator](#validator)|Client object used for validation check of input data.|
+|[Static](#static)|Client object for storing static data.<br>Used for pagination and reference to different types of client objects.|
 
-例えばmainページを設置した場合、``srcs/pages/main.js``ファイルを作成して、下記コードの形でclientオブジェクトを設定します。  
-openメソッドはページ移動した後に実行されるコールバックです。
+For example, if you set up the main page, create a ``srcs/pages/main.js`` file and set the client object in the form of the following code.  
+The open method is a callback that is executed after page navigation.
 
 ```javascript
 hachiware.page("main",{
@@ -345,7 +502,7 @@ hachiware.page("main",{
 });
 ```
 
-別のページ``page_a``を新たに設置した場合は、``srcs/pages/page_b.jsP``ファイルを作成して下記コードを記述します。
+If another page ``page_a`` is newly installed, create a ``srcs/pages/page_b.jsP`` file and write the following code.
 
 ```javascript
 hachiware.page("page_a",{
@@ -358,41 +515,42 @@ hachiware.page("page_a",{
 });
 ```
 
-上記のように各ページごとにファイル分割でページのコールバック等を設置することで  
-保守性・可読性を上げることができる。
+By setting a page callback etc. by dividing the file for each page as described above Maintainability and readability can be improved.
 
-## # clientオブジェクトの共通変数・メソッド
+## # Common variables and methods of client object
 
-clientオブジェクトは``loadCore``クラスをベースにpageやsecsion等の各オブジェクトごとに適応したメソッドを用意しています。
-``loadCore``クラスにはどのclientオブジェクトでも利用可能な共通の変数・メソッドを用意しています。
+The client object provides methods adapted for each object such as page and secsion based on the ``loadCore`` class.
 
-主な共通関数、共通メソッドは下記のとおりです。
+The `` loadCore`` class provides common variables and methods that can be used with any client object.  
+(Only some static exceptions.)
+
+The main common functions and methods are as follows.
 
 | method |overview|
 |:--|:--|
-|[$type](#lc_type)|オブジェクトタイプ|
-|[$name](#lc_name)|オブジェクト名|
-|$base|ベースのオブジェクト<br>通常使用はしません。|
-|[$sync](#lc_sync)|同期対応用syncオブジェクト。|
-|[$tool](#lc_tool)|基本メソッド用toolオブジェクト|
-|[$routes](#lc_routes)|ルーティング結果|
-|[$storage](#lc_storate)|ストレージ操作用|
-|[$setView](#lc_setview)|(page、section用のみ利用可)データ表示用|
-|[$section](#lc_section)|Sectionオブジェクトの利用|
-|[$form](#lc_form)|Formオブジェクトの利用|
-|[$model](#lc_model)|Modelオブジェクトの利用|
-|[$validator](#lc_validator)|Validatorオブジェクトの利用|
-|[$static](#lc_static)|Staticオブジェクトの利用|
-|[$redirect](#lc_redirect)|別ページへの移動|
-|[$back](#lc_back)|前のページへ戻る|
-|[$forward](#lc_forward)|戻る前のページに進む|
+|[$type](#lc_type)|Object type.|
+|[$name](#lc_name)|Object name.|
+|$base|Base object<br>Normally, it is not used directly.|
+|[$sync](#lc_sync)|Sync object for synchronization.|
+|[$tool](#lc_tool)|Tool object for basic methods.|
+|[$routes](#lc_routes)|Routing result.|
+|[$storage](#lc_storate)|For storage operation.|
+|[$setView](#lc_setview)|For displaying HTML data.<br>Only available for pages and sections.|
+|[$section](#lc_section)|Use of Section object.|
+|[$form](#lc_form)|Use of Form object.|
+|[$model](#lc_model)|Use of Model object.|
+|[$validator](#lc_validator)|Use of Validator object.|
+|[$static](#lc_static)|Use of Static objects.|
+|[$redirect](#lc_redirect)|Move to another page.|
+|[$back](#lc_back)|Return to the previous page.|
+|[$forward](#lc_forward)|Go back to the previous page.|
 
 <a id="lc_type"></a>
 
-### - $type - オブジェクトのタイプ
+### - $type - Object type.
 
-オブジェクトのタイプを取得。  
-Pageの場合はpages、Sectionの場合はsections等で返します。
+Get the type of object.  
+In the case of Page, it is returned in pages, in the case of Section, it is returned in sections, etc.
 
 ```javascript
 var type = this.$type;
@@ -401,9 +559,9 @@ conosle.log(type);           // <= pages
 
 <a id="lc_name"></a>
 
-### - $name - オブジェクト名
+### - $name - Object name.
 
-オブジェクト名を取得。  
+Get the object name.  
 
 ```javascript
 var name = this.$name;
@@ -412,64 +570,66 @@ conosle.log(name);          // <= main
 
 <a id="lc_sync"></a>
 
-### - $sync - 同期対応用syncオブジェクト
+### - $sync - Sync object for synchronization.
 
-同期処理対応用のsyncオブジェクトを返します。  
-このオブジェクトは``hachiware_sync``モジュールと同じオブジェクトです。
+Returns a sync object for synchronization processing.  
+This object is the same object as the `` hachiware_sync`` module.
 
-詳細は[hachiware_sync](https://github.com/masatonakatsuji2021/hachiware_sync)のページを参照。
+See the [hachiware_sync](https://github.com/masatonakatsuji2021/hachiware_sync) page for details.
 
-### - $tool - 基本メソッド用toolオブジェクト
+### - $tool - Tool object for basic methods.
 
-このオブジェクトは``hachiware_tool``モジュールが提供しているオブジェクトと同じです。
-詳細は[hachiware_toolの概要](https://github.com/masatonakatsuji2021/hachiware_tool)を参照。
+This object is the same as the object provided by the `` hachiware_tool`` module.  
+See [Overview of hachiware_tool](https://github.com/masatonakatsuji2021/hachiware_tool) for details.
 
-### - $routes - ルーティング結果
+### - $routes - Routing result.
 
-ルーティング結果のオブジェクトです。
+The object of the routing result.
 
 ```javascript
 var routes = this.$routes;
 console.log(routes);
 ```
 
-下記のような結果を返します
+Returns a result similar to the following.
 
 ```
 {
-    mode: "success",
-    base: "/",
-    page: "main",
-    aregment: [],
+    mode: "success",        <= mode (success / error)
+    base: "/",              <= base URL
+    page: "main",           <= routing page
+    aregment: {},           <= aregment data
+    query: null,            <= query data
 }
 ```
 <a id = "lc_storage"></a>
 
-### - $storage - ストレージ操作用
+### - $storage - For storage operation
 
-sessionStorageやlocalStorage等のHTML5準拠のストレージを利用可能はオブジェクトです。
+HTML5-compliant storage such as sessionStorage and localStorage is available for objects.
 
-詳細は後程起債予定。。
+Details will be issued later. ..
 
 <a id="lc_setview"></a>
 
-### - $setView - HTMLデータ表示用 (page、section用のみ利用可)
+### - $setView - For displaying HTML data (Only available for pages and sections)
 
-このオブジェクトはPageまたはSectionのclientオブジェクトの場合のみ利用可能。
+: This object is only available for Page or Section client objects.
 
-データを画面表示する際に一括で表示設定が可能なメソッドです。
+It is a method that can be set to display all at once when displaying data on the screen.
 
-PageまたはSectionのHTMLタグに取得データ等を反映する際に
-``%setView``を使うと一括で簡潔に設定ができます。
+When reflecting the acquired data etc. in the HTML tag of Page or Section
+You can use ``%setView`` to make batch and concise settings.
 
-通常データ項目ごとにDOM操作のコードを入れる必要がなく、
-コードの短絡化をすることができます。
+Normally, there is no need to enter the DOM operation code for each data item,
+You can short-circuit the cord.
 
-js側では``this.$sevVie``にて、各項目ごとの値を指定します。  
-なお値を文字列で指定した場合はそのまま文字列を表示、  
-下記の``memo``のようにオブジェクトの場合は、  
-JQueryによるDOM操作を代理してくれます。
-(下記``memo``の場合は、textで表示、css属性が指定されます)
+On the js side, specify the value for each item in ``this.$sevVie``.
+
+If the value is specified as a character string, the character string is displayed as it is.
+In the case of an object like ``memo`` below, it will take over the DOM operation by JQuery.
+
+(下In the case of the following ``memo``, it is displayed as text and the css attribute is specified.)
 
 
 ```javascript
@@ -484,8 +644,8 @@ hachiware.page("main",{
             age: 36,
             gender: "men",
             memo:{
-                text:"text Sample Text...",
-                css:{
+                text:"text Sample Text...",     // <= Show text.
+                css:{                           // <= Set style attribute.
                     "font-size":"18px;",
                 },
             },
@@ -496,8 +656,7 @@ hachiware.page("main",{
 });
 ```
 
-HTML側は表示タグの箇所に  
-下記のように``h-view``属性または``hachiware-view``属性を指定するだけ。
+On the HTML side, just specify the ``h-view`` attribute or the ``hachiware-view`` attribute as shown below.
 
 ```html
 <dl>
@@ -512,36 +671,36 @@ HTML側は表示タグの箇所に
 </dl>
 ```
 
-これだけで、このページを表示することにより各項目値が指定した箇所に表示されます。
+With this alone, each item value will be displayed at the specified location by displaying this page.
 
-### - $section - Secionオブジェクトの利用
+### - $section - Use of Session object
 
-Sectionオブジェクトを使用する際のオブジェクトメソッドです。  
-詳細は[こちらを](#section)参照。
+Object method when using Section object.  
+See [here] (#section) for details.
 
-### - $form - Formオブジェクトの利用
+### - $form - Use of Form object
 
-Formオブジェクトを使用する際のオブジェクトメソッドです。  
-詳細は[こちらを](#form)参照。
+Object method when using Form object.  
+See [here] (#form) for details.
 
-### - $model - Modelオブジェクトの利用
+### - $model - Use of Model object
 
-Modelオブジェクトを使用する際のオブジェクトメソッドです。  
-詳細は[こちらを](#model)参照。
+Object method when using Model object.  
+See [here] (#model) for details.
 
-### - $validator - Validatorオブジェクトの利用
+### - $validator - Use of Validator object
 
-Validatorオブジェクトを使用する際のオブジェクトメソッドです。  
-詳細は[こちらを](#validator)参照。
+Object method when using a Validator object.  
+See [here] (#validator) for details.
 
-### - $static - Staticオブジェクトの利用
+### - $static - Use of Static objects
 
-Staticオブジェクトを使用する際のオブジェクトメソッドです。  
-詳細は[こちらを](#static)参照。
+Object method when using a Static object.  
+See [here] (#static) for details.
 
-### - $redirect - 別ページへの移動
+### - $redirect - Move to another page
 
-別のページに移動する場合に使用するメソッドです。
+This method is used to move to another page.
 
 In the following cases, you will be moved to another page "page_a" when you open the main screen.
 
@@ -550,7 +709,7 @@ hachiware.page("main",{
 
     before: function(){
 
-        this.$redirect("page_b");   // <= page_bに移動>
+        this.$redirect("page_b");   // <= Go to page_b>
     },
 
 });
@@ -568,40 +727,40 @@ URL rewriting can be supported by specifying true in the second argument.
 this.$redirect("page_b", true);
 ```
 
-### - $back - 前のページへ戻る
+### - $back - Return to the previous page
 
-前のページに戻る場合に使用するメソッドです。
-
-```javascript
-hachiware.page("page_c",{
-
-    before: function(){
-
-        this.$back();   // <= 前ページに戻る
-    },
-
-});
-```
-
-詳細は後程記述予定...
-
-### - $forward - 戻る前のページに進む
-
-
-戻る前のページにサイド進む場合に使用するメソッドです。
+This method is used to return to the previous page.
 
 ```javascript
 hachiware.page("page_c",{
 
     before: function(){
 
-        this.$forward();   // <= 戻る前のページに進む
+        this.$back();   // <= Return to the previous page
     },
 
 });
 ```
 
-詳細は後程記述予定...
+Details will be described later ...
+
+### - $forward - Go back to the previous page
+
+
+This method is used to go to the side of the previous page.
+
+```javascript
+hachiware.page("page_c",{
+
+    before: function(){
+
+        this.$forward();   // <= Go back to the previous page
+    },
+
+});
+```
+
+Details will be described later ...
 
 ---
 
@@ -927,11 +1086,11 @@ The variables or objects (global variables) that can be used in the page callbac
 |:--|:--|
 |$el|Page area JQuery object|
 |$parent|Inheritance source page object|
-|$setView|HTMLへのデータ一括表示用|
+|$setView|For batch display of data in HTML.|
 
-#### : $el - ページDOM要素をの取得
+#### : $el - Get the page DOM element
 
-``this.$el``で表示ページのDOM要素(Jqueryベース)を簡単に取得します。 
+Easily get the DOM element (Jquery based) of the display page with ``this.$el``. 
 
 ```javascript
 hachiware.page("main",{
@@ -949,9 +1108,9 @@ hachiware.page("main",{
 });
 ```
 
-#### : $parent - 親オブジェクト
+#### : $parent - Inheriting parent object
 
-``extend``で指定した親オブジェクトが入っています。
+Contains the parent object specified by ``extend``.
 
 ``arsc/pages/app.js``.
 
@@ -981,12 +1140,12 @@ hachiware.page("main",{
 });
 ```
 
-#### : $setView - HTMLへのデータ一括表示用
+#### : $setView - For batch display of data in HTML
 
-HTMLタグに取得データ等を反映する際に
-``%setView``を使うと一括で簡潔に設定ができます。
+When reflecting the acquired data etc. in the HTML tag
+You can use `%setView`` to make batch and concise settings.
 
-詳細は[こちらを](#lc_setview)参照。
+See [here](#lc_setview) for details.
 
 ---
 
@@ -1047,7 +1206,7 @@ If you specify ``srcs/sections/test.js`` as shown below, the open callback will 
 (You should see "Section Open test" in your browser console)
 
 ```javascript
-hachiware.test("test",{
+hachiware.section("test",{
 
     open: function(){
 
@@ -1061,12 +1220,74 @@ The planned variables or methods are:
 
 |Variable name/callback name|OverView|
 |:--|:--|
-|$el|JQuery object for section tag|
-|$setView||
-|open|Function to display section.<br>Available as a callback.|
-|append|Add section.<br>Available as a callback.|
-|close|Close the open section.<br>Available as a callback.|
+|[$el](#section_el)|Section area JQuery object|
+|[$setView](#section_setview)|For batch display of data in HTML.|
+|[open](#section_open)|Function to display section.<br>Available as a callback.|
+|[append](#section_append)|Add section.<br>Available as a callback.|
+|[close](#section_close)|Close the open section.<br>Available as a callback.|
 
+<a id="section_el"></a>
+
+### - $el - Section area JQuery object
+
+Easily get the DOM element (Jquery based) of the display section with this.$el.
+
+```javascript
+hachiware.page("main",{
+
+    extend: "app",
+
+    open: function(){
+
+        var area1 = this.$section("test").open("area1");
+
+        area1.$el.find(".view-text").text("abcdef");
+    },
+
+});
+```
+
+<a id="section_setview"></a>
+
+### - $setView - For batch display of data in HTML
+
+When reflecting the acquired data etc. in the HTML tag You can use `%setView`` to make batch and concise settings.
+
+See [here](#lc_setview) for details.
+
+<a id="section_open"></a>
+
+### - open - Function to display section.
+
+A method for displaying a Section.
+
+Specify the display destination in the argument.
+
+```javascript
+hachiware.page("main",{
+
+    open: function(){
+
+        this.$section("test").open("area1");
+    },
+
+});
+```
+
+On the HTML side, specify the display destination specified in the above script with the ``h-section`` attribute or ``hachiware-section`` attribute.
+
+```html
+<div h-section="area1"></div>
+```
+
+### - append - Add section.
+
+
+Details will be described later..
+
+### - close -Close the open section.
+
+Details will be described later..
 
 ---
 
