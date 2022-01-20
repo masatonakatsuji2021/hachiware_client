@@ -63,13 +63,14 @@ srcs                    <= Script file installation area(".js" file)
     routings.js         <= Routing script file
     setting.js          <= Initial setting script file
 index.html              <= index HTML file
+client.json             <= Client settings json 
 ```
 
 It is necessary to arbitrarily change the files/directories other than the build directory "_build".
 
 |File/directory name|Overview|
 |:--|:--|
-|_build|Build directory<br>No changes are required for this directory or the files inside, as it is automatically generated when the build is executed.|
+|_build|Build directory<br>No changes are required for this directory or the files inside, as it is automatically generated when the build is executed.<br>The target file name may be different depending on the SPA project due to the setting of client.json.|
 |assets|Static file installation area<br>Place css files, images, external js libraries, etc. in this.|
 |htmls|Placement area for HTML tags (rendering) such as pages, layouts, sections, etc.|
 |- page|Placement area for HTML files for pages.<br>The explanation about the page is explained [here](#page).|
@@ -84,7 +85,8 @@ It is necessary to arbitrarily change the files/directories other than the build
 |- statics|Script file installation area for statics.<br>The explanation about the model is explained [here](#static).|
 |- routings.js|Routing script file.<br>Routing is explained [here](#routing).|
 |- setting.js|Initial setting script file.<br>Setting is explained [here](#setting).|
-|index.html|index HTML file.|
+|index.html|index HTML file.<br>The target file name may be different depending on the SPA project due to the setting of client.json.|
+|client.json|Client settings json.<br>This file is required.|
 
 ---
 
@@ -253,6 +255,29 @@ After that, open the ``index.html`` file in the "_build" directory with a browse
 
 ---
 
+## # Initial setting by client.json file
+
+The ``client.json`` file directly under the project directory is the file that describes the settings at the time of build execution.  
+This file is required when running a build.
+
+```json
+{
+    "name": "project name",
+    "inputHtml": "index.html",
+    "outputHtml": "index.html",
+    "build": "_build"
+}
+```
+
+|colum name|overview|
+|:--|:--|
+|name|Official name of SPA project.|
+|inputHtml|HTML file name to read for SPA.|
+|outputHtml|HTML file name to be output at build time for SPA target.|
+|build|Output destination build directory.|
+
+---
+
 <a id="routing"></a>
 
 ## # Routing
@@ -277,12 +302,312 @@ hachiware.routing({
 });
 ```
 
+Details will be described later...
+
+---
+
+<a id="objects"></a>
+
+## # Clientオブジェクト構造
+
+Hachiware Clientではページやセクション、フォーム等の各ブロックごとに応じた箇所をオブジェクトという形で形成されています。
+(以後clientオブジェクトとします)
+
+アプリ開発者はこのclientオブジェクトを必要な時に追加して組み合わせて、一つのSPAを実現します。
+
+clientオブジェクトを作成する場合は、ソースの可読性および保守性を考慮して
+指定されたディレクトリ内、かつソースファイルを個々のオブジェクトごとに分離すること。
+
+(上記は守らなくてもビルドは可能ですが、コード構造が混在してしまう恐れがあります)
+
+デフォルトで構成されるclientオブジェクトは以下の通りです。
+
+|client-object name|overview|
+|:--|:--|
+|[Page](#page)|ページ表示単位のclientオブジェクト。<b>ページを追加する場合は必ずこのオブジェクトを追加すること|
+|[Section](#section)|ページ内でさらに個々のパーツに分離されたclientオブジェクト。<br>部品化により別ページでの再利用も可能|
+|Form|フォーム送信時やリセット時のコールバック、フォーム内の初期値または選択肢を設定するためのclientオブジェクト|
+|Model|ビジネスロジックとしてのclientオブジェクト|
+|Validator|入力データの検証チェック用に使用するclientオブジェクト|
+|Static|静的データを格納するためのclientオブジェクト<br>ページ移動間や別種類のclientオブジェクトへの参照に使用|
+
+例えばmainページを設置した場合、``srcs/pages/main.js``ファイルを作成して、下記コードの形でclientオブジェクトを設定します。  
+openメソッドはページ移動した後に実行されるコールバックです。
+
+```javascript
+hachiware.page("main",{
+
+    open: function(){
+
+        console.log("Main Page Open");
+    },
+
+});
+```
+
+別のページ``page_a``を新たに設置した場合は、``srcs/pages/page_b.jsP``ファイルを作成して下記コードを記述します。
+
+```javascript
+hachiware.page("page_a",{
+
+    open: function(){
+
+        console.log("Page_A Page Open");
+    },
+
+});
+```
+
+上記のように各ページごとにファイル分割でページのコールバック等を設置することで  
+保守性・可読性を上げることができる。
+
+## # clientオブジェクトの共通変数・メソッド
+
+clientオブジェクトは``loadCore``クラスをベースにpageやsecsion等の各オブジェクトごとに適応したメソッドを用意しています。
+``loadCore``クラスにはどのclientオブジェクトでも利用可能な共通の変数・メソッドを用意しています。
+
+主な共通関数、共通メソッドは下記のとおりです。
+
+| method |overview|
+|:--|:--|
+|[$type](#lc_type)|オブジェクトタイプ|
+|[$name](#lc_name)|オブジェクト名|
+|$base|ベースのオブジェクト<br>通常使用はしません。|
+|[$sync](#lc_sync)|同期対応用syncオブジェクト。|
+|[$tool](#lc_tool)|基本メソッド用toolオブジェクト|
+|[$routes](#lc_routes)|ルーティング結果|
+|[$storage](#lc_storate)|ストレージ操作用|
+|[$setView](#lc_setview)|(page、section用のみ利用可)データ表示用|
+|[$section](#lc_section)|Sectionオブジェクトの利用|
+|[$form](#lc_form)|Formオブジェクトの利用|
+|[$model](#lc_model)|Modelオブジェクトの利用|
+|[$validator](#lc_validator)|Validatorオブジェクトの利用|
+|[$static](#lc_static)|Staticオブジェクトの利用|
+|[$redirect](#lc_redirect)|別ページへの移動|
+|[$back](#lc_back)|前のページへ戻る|
+|[$forward](#lc_forward)|戻る前のページに進む|
+
+<a id="lc_type"></a>
+
+### - $type - オブジェクトのタイプ
+
+オブジェクトのタイプを取得。  
+Pageの場合はpages、Sectionの場合はsections等で返します。
+
+```javascript
+var type = this.$type;
+conosle.log(type);           // <= pages
+```
+
+<a id="lc_name"></a>
+
+### - $name - オブジェクト名
+
+オブジェクト名を取得。  
+
+```javascript
+var name = this.$name;
+conosle.log(name);          // <= main
+```
+
+<a id="lc_sync"></a>
+
+### - $sync - 同期対応用syncオブジェクト
+
+同期処理対応用のsyncオブジェクトを返します。  
+このオブジェクトは``hachiware_sync``モジュールと同じオブジェクトです。
+
+詳細は[hachiware_sync](https://github.com/masatonakatsuji2021/hachiware_sync)のページを参照。
+
+### - $tool - 基本メソッド用toolオブジェクト
+
+このオブジェクトは``hachiware_tool``モジュールが提供しているオブジェクトと同じです。
+詳細は[hachiware_toolの概要](https://github.com/masatonakatsuji2021/hachiware_tool)を参照。
+
+### - $routes - ルーティング結果
+
+ルーティング結果のオブジェクトです。
+
+```javascript
+var routes = this.$routes;
+console.log(routes);
+```
+
+下記のような結果を返します
+
+```
+{
+    mode: "success",
+    base: "/",
+    page: "main",
+    aregment: [],
+}
+```
+<a id = "lc_storage"></a>
+
+### - $storage - ストレージ操作用
+
+sessionStorageやlocalStorage等のHTML5準拠のストレージを利用可能はオブジェクトです。
+
+詳細は後程起債予定。。
+
+<a id="lc_setview"></a>
+
+### - $setView - HTMLデータ表示用 (page、section用のみ利用可)
+
+このオブジェクトはPageまたはSectionのclientオブジェクトの場合のみ利用可能。
+
+データを画面表示する際に一括で表示設定が可能なメソッドです。
+
+PageまたはSectionのHTMLタグに取得データ等を反映する際に
+``%setView``を使うと一括で簡潔に設定ができます。
+
+通常データ項目ごとにDOM操作のコードを入れる必要がなく、
+コードの短絡化をすることができます。
+
+js側では``this.$sevVie``にて、各項目ごとの値を指定します。  
+なお値を文字列で指定した場合はそのまま文字列を表示、  
+下記の``memo``のようにオブジェクトの場合は、  
+JQueryによるDOM操作を代理してくれます。
+(下記``memo``の場合は、textで表示、css属性が指定されます)
+
+
+```javascript
+hachiware.page("main",{
+
+    extend: "app",
+
+    open: function(){
+
+        this.$setView({
+            name: "Test Name",
+            age: 36,
+            gender: "men",
+            memo:{
+                text:"text Sample Text...",
+                css:{
+                    "font-size":"18px;",
+                },
+            },
+        });
+
+    },
+
+});
+```
+
+HTML側は表示タグの箇所に  
+下記のように``h-view``属性または``hachiware-view``属性を指定するだけ。
+
+```html
+<dl>
+    <dd>name</dd>
+    <dd h-view="name"></dd>
+    <dt>age</dt>
+    <dd h-view="age"></dd>
+    <dt>gender</dt>
+    <dd h-view="gender"></dd>
+    <dt>memo</dt>
+    <dd h-view="memo"></dd>
+</dl>
+```
+
+これだけで、このページを表示することにより各項目値が指定した箇所に表示されます。
+
+### - $section - Secionオブジェクトの利用
+
+Sectionオブジェクトを使用する際のオブジェクトメソッドです。  
+詳細は[こちらを](#section)参照。
+
+### - $form - Formオブジェクトの利用
+
+Formオブジェクトを使用する際のオブジェクトメソッドです。  
+詳細は[こちらを](#form)参照。
+
+### - $model - Modelオブジェクトの利用
+
+Modelオブジェクトを使用する際のオブジェクトメソッドです。  
+詳細は[こちらを](#model)参照。
+
+### - $validator - Validatorオブジェクトの利用
+
+Validatorオブジェクトを使用する際のオブジェクトメソッドです。  
+詳細は[こちらを](#validator)参照。
+
+### - $static - Staticオブジェクトの利用
+
+Staticオブジェクトを使用する際のオブジェクトメソッドです。  
+詳細は[こちらを](#static)参照。
+
+### - $redirect - 別ページへの移動
+
+別のページに移動する場合に使用するメソッドです。
+
+In the following cases, you will be moved to another page "page_a" when you open the main screen.
+
+```javascript
+hachiware.page("main",{
+
+    before: function(){
+
+        this.$redirect("page_b");   // <= page_bに移動>
+    },
+
+});
+```
+There are two ways to redirect.  
+You can either redirect to another page as it is, or change the URL to another page.
+
+In the above case, it is normally redirected to another page, so it is not suitable when a page is set up in the middle and used for transfer.  
+(The transfer page will open when you return.)
+
+In that case, instead of redirecting to another page normally, you can transfer it without problems by rewriting the page URL.  
+URL rewriting can be supported by specifying true in the second argument.
+
+```javascript
+this.$redirect("page_b", true);
+```
+
+### - $back - 前のページへ戻る
+
+前のページに戻る場合に使用するメソッドです。
+
+```javascript
+hachiware.page("page_c",{
+
+    before: function(){
+
+        this.$back();   // <= 前ページに戻る
+    },
+
+});
+```
+
+詳細は後程記述予定...
+
+### - $forward - 戻る前のページに進む
+
+
+戻る前のページにサイド進む場合に使用するメソッドです。
+
+```javascript
+hachiware.page("page_c",{
+
+    before: function(){
+
+        this.$forward();   // <= 戻る前のページに進む
+    },
+
+});
+```
+
+詳細は後程記述予定...
 
 ---
 
 <a id="page"></a>
 
-## # Page
+## # Page object
 
 A page is a building block of a screen when deploying a SPA.  
 Create a page for each screen.
@@ -600,18 +925,13 @@ The variables or objects (global variables) that can be used in the page callbac
 
 |name|Overview|
 |:--|:--|
-|$name|Page name|
 |$el|Page area JQuery object|
-|$layoutEl|Layout area JQuery object|
 |$parent|Inheritance source page object|
-|$redirect|Move to another page|
-|$back|Return to the previous page|
-|$form|object for form of hachiware_client<br>[Click here for details](#form)|
-|$section|object for section of hachiware_client<br>[Click here for details](#section)|
-|$models|object for model of hachiware_client<br>[Click here for details](#model)|
-|$validator|Object for validator of hachiware_client<br>[Click here for details](#validator)|
+|$setView|HTMLへのデータ一括表示用|
 
-By using ``$el``, you can operate the DOM by focusing on each element tag in the page.
+#### : $el - ページDOM要素をの取得
+
+``this.$el``で表示ページのDOM要素(Jqueryベース)を簡単に取得します。 
 
 ```javascript
 hachiware.page("main",{
@@ -629,8 +949,24 @@ hachiware.page("main",{
 });
 ```
 
-Use ``$redirect`` to redirect to another page.  
-In the following cases, you will be moved to another page "page_a" when you open the main screen.
+#### : $parent - 親オブジェクト
+
+``extend``で指定した親オブジェクトが入っています。
+
+``arsc/pages/app.js``.
+
+```javascript
+hachiware.page("app",{
+
+    open: function(){
+
+        this.myName = "app";
+    },
+
+});
+```
+
+``arsc/pages/main.js``.
 
 ```javascript
 hachiware.page("main",{
@@ -639,30 +975,18 @@ hachiware.page("main",{
 
     open: function(){
 
-        this.$redirect("page_b");
+        console.log(this.$parent.myName);   // <= "app>"
     },
 
 });
 ```
 
-There are two ways to redirect.  
-You can either redirect to another page as it is, or change the URL to another page.
+#### : $setView - HTMLへのデータ一括表示用
 
-In the above case, it is normally redirected to another page, so it is not suitable when a page is set up in the middle and used for transfer.  
-(The transfer page will open when you return.)
+HTMLタグに取得データ等を反映する際に
+``%setView``を使うと一括で簡潔に設定ができます。
 
-In that case, instead of redirecting to another page normally, you can transfer it without problems by rewriting the page URL.  
-URL rewriting can be supported by specifying true in the second argument.
-
-```javascript
-this.$redirect("page_b", true);
-```
-
-``$back`` returns to the previous page.
-
-```javascript
-this.$back();
-```
+詳細は[こちらを](#lc_setview)参照。
 
 ---
 
@@ -738,18 +1062,10 @@ The planned variables or methods are:
 |Variable name/callback name|OverView|
 |:--|:--|
 |$el|JQuery object for section tag|
-|$name|Section Name|
-|$section|object for new section of hachiware_client|
-|$form|object for form of hachiware_client<br>[Click here for details](#form)|
-|$models|object for model of hachiware_client<br>[Click here for details](#model)|
-|$validator|Object for validator of hachiware_client<br>[Click here for details](#validator)|
+|$setView||
 |open|Function to display section.<br>Available as a callback.|
 |append|Add section.<br>Available as a callback.|
 |close|Close the open section.<br>Available as a callback.|
-
-
-
-
 
 
 ---
@@ -758,7 +1074,7 @@ The planned variables or methods are:
 
 ## # Form
 
-comming soon...!
+Details will be described later..
 
 ---
 
@@ -766,7 +1082,7 @@ comming soon...!
 
 ## # Validator
 
-comming soon...!
+Details will be described later..
 
 ---
 
@@ -774,7 +1090,7 @@ comming soon...!
 
 ## # Model
 
-comming soon...!
+Details will be described later..
 
 ---
 
@@ -782,7 +1098,7 @@ comming soon...!
 
 ## # Static
 
-comming soon...!
+Details will be described later..
 
 ---
 

@@ -1,0 +1,6 @@
+{
+    "name":null,
+    "inputHtml":"index.html",
+    "outputHtml":"main.html",
+    "build":"_build"
+}

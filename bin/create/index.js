@@ -4,12 +4,15 @@
  * 
  * A simple and easy-to-use SPA (Single-Page-Action) framework.
  * 
- * Author : Nakatsuji Masato 
- * Copylight (C) 2022 Nakatsuji Masato.
- * GitHub : https://github.com/masatonakatsuji2021/hachiware_client
+ * License : MIT License. 
+ * Since   : 2022.01.15
+ * Author  : Nakatsuji Masato 
+ * GitHub  : https://github.com/masatonakatsuji2021/hachiware_client
+ * npm     : https://www.npmjs.com/package/hachiware_client
  * 
  * ====================================================================
  */
+
 
 const hfs = require("hachiware_fs");
 const path0 = require("path");
@@ -21,11 +24,22 @@ module.exports = function(rootPath, args, exitResolve){
 
     var option = {};
 
+    const outLog = function(str){
+        this.color.orange("# ").outn(str);  
+    }.bind(this);
+
+
     this.then(function(resolve){
 
         if(args.getOpt("image")){
-            option.image = args.getOpt("image");
-            return resolve();
+
+            if(fs.existsSync(__dirname + "/templates/" + value)){
+                option.image = args.getOpt("image");
+                return resolve();
+            }
+            else{
+                this.color.red("[Error] ").outn("The image \"" + value + "\" was not found. please retry.");
+            }
         }
 
         this.in("Q. Specify the Image Name to create. (default)", function(value, retry){
@@ -144,8 +158,6 @@ module.exports = function(rootPath, args, exitResolve){
             return resolve();
         }
 
-        var conf = this;
-
         if(option.project){
             var targetPath = rootPath + "/" + option.project;
         }
@@ -153,12 +165,14 @@ module.exports = function(rootPath, args, exitResolve){
             var targetPath = rootPath;
         }
 
+        outLog("Image Copy Start..");
+
         var opt = {
             callbackMkdir: function(path){
-                conf.outn("Mkdir " + path);
+                outLog("Set Dir " + path);
             },
             callbackCopyFile: function(path, copyPath){
-                conf.outn("CopyFile (" + path.replace(__dirname + "/templates/" + option.image,"") + ") " + copyPath);
+                outLog("Set File " + copyPath);
             },
         };
 
@@ -172,10 +186,19 @@ module.exports = function(rootPath, args, exitResolve){
             return resolve();
         }
 
+        outLog("Image Copy exit..");
+
         this.br(2).outn(".... Create Completed!").br();
 
+        var newArgStr = "";
+        if(option.project){
+            newArgStr = "-project=" + option.project;
+        }
+
+        var newArgs = this.convertArgs(newArgStr);
+
         const build = require("../build");
-        build.bind(this)(rootPath, args, resolve);
+        build.bind(this)(rootPath, newArgs, resolve);
 
     }).then(function(){
 

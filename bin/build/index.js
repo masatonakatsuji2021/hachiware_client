@@ -4,9 +4,11 @@
  * 
  * A simple and easy-to-use SPA (Single-Page-Action) framework.
  * 
- * Author : Nakatsuji Masato 
- * Copylight (C) 2022 Nakatsuji Masato.
- * GitHub : https://github.com/masatonakatsuji2021/hachiware_client
+ * License : MIT License. 
+ * Since   : 2022.01.15
+ * Author  : Nakatsuji Masato 
+ * GitHub  : https://github.com/masatonakatsuji2021/hachiware_client
+ * npm     : https://www.npmjs.com/package/hachiware_client
  * 
  * ====================================================================
  */
@@ -27,14 +29,60 @@ module.exports = function(rootPath, args, exitResolve){
 
     var dirPath = null;
 
+    var buildPath = null;
+
+    var conf = null;
+
+    var outLog = function(str){
+        this.color.green("# ").outn(str);  
+    };
+    outLog = outLog.bind(this);
+    var outNgLog = function(str){
+        this.color.red("Error ").outn(str);
+        this.br(2).outn("...Pause!");
+    };
+    outNgLog = outNgLog.bind(this);
+
     this.then(function(resolve){
 
+        if(args.getOpt("project")){
+            dirPath = rootPath + "/" + args.getOpt("project");
+        }
+        else{
+            dirPath = rootPath;
+        }
+
+        outLog("Build Project = " + dirPath);
+
+        try{
+            conf = require(dirPath + "/client.json");
+
+            if(!conf.build){
+                conf.build = "_build";
+            }
+
+            if(!conf.inputHtml){
+                conf.inputHtml = "index.html";
+            }
+            
+            if(!conf.outputHtml){
+                conf.outputHtml = "index.html";
+            }
+
+            outLog("Read client.json");
+        }catch(err){
+            outNgLog("\"client.json\" The file does not exist or the file contents are corrupted.");
+            return exitResolve();
+        }
+
+        buildPath = dirPath + "/" + conf.build;
+
         if(hfs.existsSync(__dirname + "/__jqueryBuffer")){
-            this.color.blue("# ").outn("Jquery Buffer exists.");
+            outLog("Jquery Buffer exists.");
             return resolve();
         }
 
-        this.color.blue("# ").outn("Jquery Buffer not exists (get now ...)");
+        outLog("Jquery Buffer not exists (get now ...)");
 
         // get jquery
         var jqueryUrl = "https://code.jquery.com/jquery-3.6.0.min.js";
@@ -57,26 +105,20 @@ module.exports = function(rootPath, args, exitResolve){
 
     }).then(function(resolve){
 
-        if(args.getOpt("project")){
-            dirPath = rootPath + "/" + args.getOpt("project");
-        }
-        else{
-            dirPath = rootPath;
+        // mkdir build directory
+        if(hfs.existsSync(buildPath)){
+            outLog("exist " + buildPath);
+            hfs.deepDelete(buildPath);
+            outLog("clear " + buildPath);
         }
 
-        // mkdir build directory
-        if(hfs.existsSync(dirPath + "/_build")){
-            this.color.blue("# ").outn("exist /_build");
-        }
-        else{
-            hfs.mkdirSync(dirPath + "/_build");
-            this.color.blue("# ").outn("Mkdir /_build");    
-        }
+        hfs.mkdirSync(buildPath);
+        outLog("Mkdir " + buildPath);    
 
         // jquery set
         var jqueryStr = hfs.readFileSync(__dirname + "/__jqueryBuffer").toString();
-        hfs.writeFileSync(dirPath + "/_build/jquery.min.js", jqueryStr);
-        this.color.blue("# ").outn("Jquery Set");
+        hfs.writeFileSync(buildPath + "/jquery.min.js", jqueryStr);
+        outLog("Jquery Set " + buildPath + "/jquery.min.js");
 
         // coreLibrary combaine
         var coreList = JSON.parse(hfs.readFileSync(__dirname + "/cores/sort.json"));
@@ -85,21 +127,21 @@ module.exports = function(rootPath, args, exitResolve){
             var c_ = coreList[n];
             var buffStr = hfs.readFileSync(__dirname + "/cores/" + c_).toString();
             coreStr += buffStr + "\n";
-            this.color.blue("# ").outn("Read CoreLib " + c_);
+            outLog("Read CoreLib " + c_);
         }
         
         // validator build combine
         coreStr += "hachiware.sync = " + syncBuildString();
-        this.color.blue("# ").outn("Read/Write CoreScript hachiware_sync");
+        outLog("Read/Write CoreScript hachiware_sync");
         coreStr += "hachiware.tool = " + toolBuildString();
-        this.color.blue("# ").outn("Read/Write CoreScript hachiware_tool");
+        outLog("Read/Write CoreScript hachiware_tool");
         coreStr += "const HachiwareRouting = " + routingBuildString();
-        this.color.blue("# ").outn("Read/Write CoreScript hachiware_routing");
+        outLog("Read/Write CoreScript hachiware_routing");
         coreStr += validatorBuildString();
-        this.color.blue("# ").outn("Read/Write CoreScript hachiware_validator");
+        outLog("Read/Write CoreScript hachiware_validator");
 
-        hfs.writeFileSync(dirPath + "/_build/core.js",coreStr);
-        this.color.blue("# ").outn("Write CoreScript /_build/core.js");
+        hfs.writeFileSync(buildPath + "/core.js",coreStr);
+        outLog("Write CoreScript " + buildPath + "/core.js");
 
         // directory script combine
         var getSources = hfs.deepReadDir(dirPath + "/srcs");
@@ -108,11 +150,11 @@ module.exports = function(rootPath, args, exitResolve){
             var f_ = getSources.file[n];
             var strBuff = hfs.readFileSync(f_).toString();
             scriptStr += strBuff + "\n";
-            this.color.blue("# ").outn("Read ScriptFile " + f_.replace(dirPath,""));
+            outLog("Read ScriptFile " + f_.replace(dirPath,""));
         }
 
-        hfs.appendFileSync(dirPath + "/_build/core.js",scriptStr);
-        this.color.blue("# ").outn("Write Script /_build/core.js");
+        hfs.appendFileSync(buildPath + "/core.js",scriptStr);
+        outLog("Write Script " + buildPath + "/core.js");
 
         // rendering convert for pages (for base64)
         var str="hachiware.setRenderPage({";
@@ -126,8 +168,8 @@ module.exports = function(rootPath, args, exitResolve){
             str += "\"" + p_ + "\": \"" + r_ + "\", ";
         }
         str += "}); \n";
-        hfs.appendFileSync(dirPath + "/_build/core.js",str);
-        this.color.blue("# ").outn("Write Add convertPages /_build/core.js");
+        hfs.appendFileSync(buildPath + "/core.js",str);
+        outLog("Write Add convertPages " + buildPath + "/core.js");
         
         // rendering convert for sections (for base64)
         var str="hachiware.setRenderSection({";
@@ -141,8 +183,8 @@ module.exports = function(rootPath, args, exitResolve){
             str += "\"" + p_ + "\": \"" + r_ + "\", ";
         }
         str += "}); \n";
-        hfs.appendFileSync(dirPath + "/_build/core.js",str);
-        this.color.blue("# ").outn("Write Add convertSection /_build/core.js");
+        hfs.appendFileSync(buildPath + "/core.js",str);
+        outLog("Write Add convertSection " + buildPath + "/core.js");
 
         // rendering convert for layouts (for base64)
         var str="hachiware.setRenderLayout({";
@@ -156,20 +198,20 @@ module.exports = function(rootPath, args, exitResolve){
             str += "\"" + p_ + "\": \"" + r_ + "\", ";
         }
         str += "}); \n";
-        hfs.appendFileSync(dirPath + "/_build/core.js",str);
-        this.color.blue("# ").outn("Write Add convertLayouts /_build/core.js");
+        hfs.appendFileSync(buildPath + "/core.js",str);
+        outLog("Write Add convertLayouts " + buildPath + "/core.js");
 
         var endStr = "$(function(){ hachiware.load(); });";
-        hfs.appendFileSync(dirPath + "/_build/core.js",endStr);
+        hfs.appendFileSync(buildPath + "/core.js",endStr);
 
         try{
-            hfs.deepDelete(dirPath + "/_build/assets");
+            hfs.deepDelete(buildPath + "/assets");
         }catch(error){}
-        hfs.deepCopy(dirPath + "/assets", dirPath + "/_build/assets");
-        this.color.blue("# ").outn("Copy Assets Files");
+        hfs.deepCopy(dirPath + "/assets", buildPath + "/assets");
+        outLog("Copy Assets Files");
 
-        hfs.copyFileSync(dirPath + "/index.html", dirPath + "/_build/index.html");
-        this.color.blue("# ").outn("Write index.html");
+        hfs.copyFileSync(dirPath + "/" + conf.inputHtml, buildPath + "/" + conf.outputHtml);
+        outLog("Write " + conf.outputHtml);
 
         this.br().outn("Build Complete!");
 

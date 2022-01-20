@@ -4,9 +4,11 @@
  * 
  * A simple and easy-to-use SPA (Single-Page-Action) framework.
  * 
- * Author : Nakatsuji Masato 
- * Copylight (C) 2022 Nakatsuji Masato.
- * GitHub : https://github.com/masatonakatsuji2021/hachiware_client
+ * License : MIT License. 
+ * Since   : 2022.01.15
+ * Author  : Nakatsuji Masato 
+ * GitHub  : https://github.com/masatonakatsuji2021/hachiware_client
+ * npm     : https://www.npmjs.com/package/hachiware_client
  * 
  * ====================================================================
  */
