@@ -577,10 +577,15 @@ This object is the same object as the `` hachiware_sync`` module.
 
 See the [hachiware_sync](https://github.com/masatonakatsuji2021/hachiware_sync) page for details.
 
+
+<a id="lc_tool"></a>
+
 ### - $tool - Tool object for basic methods.
 
 This object is the same as the object provided by the `` hachiware_tool`` module.  
 See [Overview of hachiware_tool](https://github.com/masatonakatsuji2021/hachiware_tool) for details.
+
+<a id="lc_routing"></a>
 
 ### - $routes - Routing result.
 
@@ -673,30 +678,42 @@ On the HTML side, just specify the ``h-view`` attribute or the ``hachiware-view`
 
 With this alone, each item value will be displayed at the specified location by displaying this page.
 
+<a id="lc_section"></a>
+
 ### - $section - Use of Session object
 
 Object method when using Section object.  
 See [here] (#section) for details.
+
+<a id="lc_form"></a>
 
 ### - $form - Use of Form object
 
 Object method when using Form object.  
 See [here] (#form) for details.
 
+<a id="lc_model"></a>
+
 ### - $model - Use of Model object
 
 Object method when using Model object.  
 See [here] (#model) for details.
+
+<a id="lc_validator"></a>
 
 ### - $validator - Use of Validator object
 
 Object method when using a Validator object.  
 See [here] (#validator) for details.
 
+<a id="lc_static"></a>
+
 ### - $static - Use of Static objects
 
 Object method when using a Static object.  
 See [here] (#static) for details.
+
+<a id="lc_redirect"></a>
 
 ### - $redirect - Move to another page
 
@@ -727,6 +744,8 @@ URL rewriting can be supported by specifying true in the second argument.
 this.$redirect("page_b", true);
 ```
 
+<a id="lc_back"></a>
+
 ### - $back - Return to the previous page
 
 This method is used to return to the previous page.
@@ -744,8 +763,9 @@ hachiware.page("page_c",{
 
 Details will be described later ...
 
-### - $forward - Go back to the previous page
+<a id="lc_forward"></a>
 
+### - $forward - Go back to the previous page
 
 This method is used to go to the side of the previous page.
 
