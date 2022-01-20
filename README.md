@@ -683,35 +683,35 @@ With this alone, each item value will be displayed at the specified location by 
 ### - $section - Use of Session object
 
 Object method when using Section object.  
-See [here] (#section) for details.
+See [here](#section) for details.
 
 <a id="lc_form"></a>
 
 ### - $form - Use of Form object
 
 Object method when using Form object.  
-See [here] (#form) for details.
+See [here](#form) for details.
 
 <a id="lc_model"></a>
 
 ### - $model - Use of Model object
 
 Object method when using Model object.  
-See [here] (#model) for details.
+See [here](#model) for details.
 
 <a id="lc_validator"></a>
 
 ### - $validator - Use of Validator object
 
 Object method when using a Validator object.  
-See [here] (#validator) for details.
+See [here](#validator) for details.
 
 <a id="lc_static"></a>
 
 ### - $static - Use of Static objects
 
 Object method when using a Static object.  
-See [here] (#static) for details.
+See [here](#static) for details.
 
 <a id="lc_redirect"></a>
 
