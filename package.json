@@ -1,7 +1,7 @@
 {
   "name": "hachiware_client",
   "version": "1.0.3",
-  "description": "new Node.js/Javascript SPA Framework",
+  "description": "new Node.js/Javascript SPA(Single-Page-Action) Framework",
   "main": "index.js",
   "dependencies": {
     "hachiware_sync": "^1.0.0",
@@ -26,5 +26,5 @@
   "bugs": {
     "url": "https://github.com/masatonakatsuji2021/hachiware_client/issues"
   },
-  "homepage": "https://github.com/masatonakatsuji2021/hachiware_client#readme"
+  "homepage": "https://hachiware-js.com/"
 }

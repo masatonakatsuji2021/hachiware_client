@@ -1358,4 +1358,12 @@ Details will be described later..
 
 ---
 
-Author: Nakatsuji Masato.
+Hachiware_Client
+
+A simple and easy-to-use SPA (Single-Page-Action) framework.
+ 
+License : MIT License.   
+Author  : Nakatsuji Masato  
+HP URL  : [https://hachiware-js.com/](https://hachiware-js.com/)  
+GitHub  : [https://github.com/masatonakatsuji2021/Hachiware_client](https://github.com/masatonakatsuji2021/Hachiware_client)  
+npm     : [https://www.npmjs.com/package/Hachiware_client](https://www.npmjs.com/package/Hachiware_client)

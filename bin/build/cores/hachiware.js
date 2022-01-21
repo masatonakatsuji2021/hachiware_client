@@ -1,3 +1,20 @@
+/**
+ * ====================================================================
+ * Hachiware_Client (core script)
+ * 
+ * A simple and easy-to-use SPA (Single-Page-Action) framework.
+ * 
+ * License : MIT License. 
+ * Since   : 2022.01.15
+ * Author  : Nakatsuji Masato 
+ * Email   : nakatsuji@teastalk.jp
+ * HP URL  : https://hachiware-js.com/
+ * GitHub  : https://github.com/masatonakatsuji2021/hachiware_client
+ * npm     : https://www.npmjs.com/package/hachiware_client
+ * 
+ * ====================================================================
+ */
+
 var __uploadFileBuffer = {};
 	
 var Hachiware = function(){
