@@ -17,9 +17,9 @@
 
 const fs = require("fs");
 
-module.exports = function(envPath){
- 
-    fs.copyFileSync(__dirname + "/win32", envPath + "/hachiware_client",);
-    fs.copyFileSync(__dirname + "/win32.cmd", envPath + "/hachiware_client.cmd");
+module.exports = function(binPath){
+
+    fs.copyFileSync(__dirname + "/win32", binPath + "/hachiware_client",);
+    fs.copyFileSync(__dirname + "/win32.cmd", binPath + "/hachiware_client.cmd");
     console.log("# install hachiware_client");
 };
