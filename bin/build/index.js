@@ -24,6 +24,7 @@ const syncBuildString = require("hachiware_sync/buildString.js");
 const toolBuildString = require("hachiware_tool/buildString.js");
 const routingBuildString = require("hachiware_routing/buildString.js");
 const validatorBuildString = require("hachiware_validator/buildString.js");
+const { dirname } = require("path");
 
 module.exports = function(rootPath, args, exitResolve){
 
@@ -57,27 +58,38 @@ module.exports = function(rootPath, args, exitResolve){
         outLog("Build Project = " + dirPath);
 
         try{
-            conf = require(dirPath + "/client.json");
+            conf = require(dirPath + "/package.json");
 
-            if(!conf.build){
-                conf.build = "_build";
+            outLog("Read package.json");
+
+            if(!conf.client){
+                throw Error("not found");
             }
 
-            if(!conf.inputHtml){
-                conf.inputHtml = "index.html";
-            }
-            
-            if(!conf.outputHtml){
-                conf.outputHtml = "index.html";
+            if(
+                !conf.client.platform ||
+                !conf.client.build ||
+                !conf.client.inputHtml ||
+                !conf.client.outputHtml
+            ){
+                throw Error("not found");
             }
 
-            outLog("Read client.json");
         }catch(err){
-            outNgLog("\"client.json\" The file does not exist or the file contents are corrupted.");
+            outNgLog("\"package.json\" The file does not exist or the file contents are corrupted.");
             return exitResolve();
         }
 
-        buildPath = dirPath + "/" + conf.build;
+        if(
+            conf.client.platform == "nw.js" ||
+            conf.client.platform == "electron" || 
+            conf.client.platform == "cordova"
+        ){
+            buildPath = dirPath + "/" + conf.client.build + "/_dist";
+        }        
+        else{
+            buildPath = dirPath + "/" + conf.client.build;
+        }
 
         if(hfs.existsSync(__dirname + "/__jqueryBuffer")){
             outLog("Jquery Buffer exists.");
@@ -114,7 +126,9 @@ module.exports = function(rootPath, args, exitResolve){
             outLog("clear " + buildPath);
         }
 
-        hfs.mkdirSync(buildPath);
+        hfs.mkdirSync(buildPath, {
+            recursive: true,
+        });
         outLog("Mkdir " + buildPath);    
 
         // jquery set
@@ -212,10 +226,43 @@ module.exports = function(rootPath, args, exitResolve){
         hfs.deepCopy(dirPath + "/assets", buildPath + "/assets");
         outLog("Copy Assets Files");
 
-        hfs.copyFileSync(dirPath + "/" + conf.inputHtml, buildPath + "/" + conf.outputHtml);
-        outLog("Write " + conf.outputHtml);
+        hfs.copyFileSync(dirPath + "/" + conf.client.inputHtml, buildPath + "/" + conf.client.outputHtml);
+        outLog("Write " + conf.client.outputHtml);
 
-        this.br().outn("Build Complete!");
+        this.br().outn("HTML Build Complete!");
+
+        if(conf.client.platform == "nw.js"){
+            // nw.js 
+            hfs.copyFileSync(dirPath + "/package-nwjs.json", path.dirname(buildPath) + "/package.json");
+            outLog("copy package-nwjs.json -> " + conf.client.build + "/package.json");
+
+            if(conf.client.autoRun){
+                const { execSync } = require("child_process");
+                execSync("nw " + path.dirname(buildPath));    
+            }
+        }
+        else if(conf.client.platform == "electron"){
+            // electron
+            var getTop = hfs.readFileSync(buildPath + "/" + conf.client.outputHtml).toString();
+
+            getTop = getTop.replace("<script src=\"jquery.min.js\"></script>","<script>const $ = require(\"./jquery.min.js\")</script>");
+
+            hfs.writeFileSync(buildPath + "/" + conf.client.outputHtml, getTop);
+
+            hfs.copyFileSync(dirPath + "/load-electron.js", path.dirname(buildPath) + "/index.js");
+            outLog("copy load-electron.json -> " + conf.client.build + "/iindex.js");
+
+            if(conf.client.autoRun){
+                const { execSync } = require("child_process");
+                execSync("electron " + path.dirname(buildPath));
+            }
+        }
+        else if(conf.client.platform == "cordova"){
+
+            // cordova build...
+
+
+        }
 
         resolve();
     }).then(function(){
