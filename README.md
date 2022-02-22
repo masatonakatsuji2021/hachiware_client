@@ -63,14 +63,14 @@ srcs                    <= Script file installation area(".js" file)
     routings.js         <= Routing script file
     setting.js          <= Initial setting script file
 index.html              <= index HTML file
-client.json             <= Client settings json 
+package.json            <= Client setting manifest 
 ```
 
 It is necessary to arbitrarily change the files/directories other than the build directory "_build".
 
 |File/directory name|Overview|
 |:--|:--|
-|_build|Build directory<br>No changes are required for this directory or the files inside, as it is automatically generated when the build is executed.<br>The target file name may be different depending on the SPA project due to the setting of client.json.|
+|_build|Build directory<br>No changes are required for this directory or the files inside, as it is automatically generated when the build is executed.<br>The target file name may be different depending on the SPA project due to the setting of package.json.|
 |assets|Static file installation area<br>Place css files, images, external js libraries, etc. in this.|
 |htmls|Placement area for HTML tags (rendering) such as pages, layouts, sections, etc.|
 |- page|Placement area for HTML files for pages.<br>The explanation about the page is explained [here](#page).|
@@ -85,8 +85,8 @@ It is necessary to arbitrarily change the files/directories other than the build
 |- statics|Script file installation area for statics.<br>The explanation about the model is explained [here](#static).|
 |- routings.js|Routing script file.<br>Routing is explained [here](#routing).|
 |- setting.js|Initial setting script file.<br>Setting is explained [here](#setting).|
-|index.html|index HTML file.<br>The target file name may be different depending on the SPA project due to the setting of client.json.|
-|client.json|Client settings json.<br>This file is required.|
+|index.html|index HTML file.<br>The target file name may be different depending on the SPA project due to the setting of package.json.|
+|package.json|Client settings manifest.<br>This file is required.|
 
 ---
 
@@ -255,23 +255,27 @@ After that, open the ``index.html`` file in the "_build" directory with a browse
 
 ---
 
-## # Initial setting by client.json file
+## # Initial setting by package.json file
 
-The ``client.json`` file directly under the project directory is the file that describes the settings at the time of build execution.  
+The ``package.json`` file directly under the project directory is the file that describes the settings at the time of build execution.  
 This file is required when running a build.
 
 ```json
 {
-    "name": "project name",
-    "inputHtml": "index.html",
-    "outputHtml": "index.html",
-    "build": "_build"
+    "client": {
+        "name": "project name",
+        "platform": "web",
+        "inputHtml": "index.html",
+        "outputHtml": "index.html",
+        "build": "_build"
+    }
 }
 ```
 
 |colum name|overview|
 |:--|:--|
 |name|Official name of SPA project.|
+|platform|Implementation platform<br>One of "web","nw.js","elecron","cordova" enters the nest.|
 |inputHtml|HTML file name to read for SPA.|
 |outputHtml|HTML file name to be output at build time for SPA target.|
 |build|Output destination build directory.|
