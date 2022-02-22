@@ -32,6 +32,7 @@ var Hachiware = function(){
 		uploadFiles:null,
 	};
 
+	var routes = {};
     var settings = {};
 	var routings = {};
     var pages = {};
@@ -153,7 +154,7 @@ var Hachiware = function(){
 			hachiwareRouting = new HachiwareRouting("client",routings);
 		}
 
-		var routes = hachiwareRouting.get(url);
+		routes = hachiwareRouting.get(url);
 
 		buffer.layout = null;
 
@@ -280,6 +281,14 @@ var Hachiware = function(){
 			},
 			function(resolve){
 				loadingPage(resolve, routes,"open");
+			},
+			function(resolve){
+				if(navigator.onLine){
+					loadingPage(resolve, routes, "online");
+				}
+				else{
+					loadingPage(resolve, routes, "offline");
+				}
 			},
 			function(){
 				buffer.nowUrl = url;
@@ -474,6 +483,41 @@ var Hachiware = function(){
 
 					return false;
 				});
+
+				window.onoffline = function(){
+					
+					if(settings.offline){
+						var offline = settings.offline.bind(settings);
+						offline();
+					}
+
+					loadingPage(function(){},routes,"offline");
+				};
+
+				window.ononline = function(){
+
+					if(settings.online){
+						var online = settings.online.bind(settings);
+						online();
+					}
+
+					loadingPage(function(){},routes,"online");
+				};
+				
+				if(navigator.onLine){
+
+					if(settings.online){
+						var online = settings.online.bind(settings);
+						online();
+					}
+				}
+				else{
+
+					if(settings.online){
+						var offline = settings.offline.bind(settings);
+						offline();
+					}
+				}
 			},
 		]);
 

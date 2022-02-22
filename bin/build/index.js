@@ -63,7 +63,7 @@ module.exports = function(rootPath, args, exitResolve){
             outLog("Read package.json");
 
             if(!conf.client){
-                throw Error("not found");
+                throw Error("not found 1");
             }
 
             if(
@@ -72,7 +72,7 @@ module.exports = function(rootPath, args, exitResolve){
                 !conf.client.inputHtml ||
                 !conf.client.outputHtml
             ){
-                throw Error("not found");
+                throw Error("not found 2");
             }
 
         }catch(err){

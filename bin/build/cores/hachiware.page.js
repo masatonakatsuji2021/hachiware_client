@@ -7,6 +7,8 @@ hachiware.loadPage = function(pageName, options){
 		"sync_open",
 		"close",
 		"sync_close",
+		"online",
+		"offline",
 	];
 
 	return new hachiware.loadCore("pages", pageName, options, baseList,function(){
