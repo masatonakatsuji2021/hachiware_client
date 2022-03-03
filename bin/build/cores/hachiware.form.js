@@ -8,6 +8,20 @@ hachiware.loadForm = function(formName, options){
         }
 
         /**
+         * submit
+         */
+        this.submit = function(){
+            this.$el.form();
+        };
+
+        /**
+         * reset
+         */
+        this.reset = function(){
+            this.$el.reset();
+        };
+
+        /**
          * getInputDom
          * @param {*} name 
          * @returns 

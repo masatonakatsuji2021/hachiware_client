@@ -62,6 +62,7 @@ var Hachiware = function(){
 
 		if(loadPageCache[routes.page]){
 			var page = loadPageCache[routes.page];
+			page._refresh(buffer);
 		}
 		else{
 			var page = new cond.loadPage(routes.page, {
@@ -148,14 +149,18 @@ var Hachiware = function(){
         return page;
     };
 
+	var routingFlg = false;
+
 	const renderings = function(url, backUrl){
+
+		routingFlg = true;
 
 		if(!hachiwareRouting){
 			hachiwareRouting = new HachiwareRouting("client",routings);
 		}
 
 		routes = hachiwareRouting.get(url);
-
+		
 		buffer.layout = null;
 
 		if(settings.defaultLayout){
@@ -172,128 +177,158 @@ var Hachiware = function(){
 		
 				var backRoutes = hachiwareRouting.get(backUrl);
 
-                loadingPage(resolve, backRoutes, "close", true);
+				try{
+					loadingPage(resolve, backRoutes, "close", true);
+				}catch(error){
+					console.error(error);
+					resolve();
+				}
 			},
 			function(resolve){
-				loadingPage(resolve, routes, "before");
+				try{
+					loadingPage(resolve, routes, "before");
+				}catch(error){
+					console.error(error);
+					resolve();
+				}
 			},
 			function(resolve){
 
-				if(settings.urlMode == MODE_HASH){
-					var turl = location.hash.substring(1);
-				}
-				else if(settings.urlMode == MODE_QUERY){
-					var turl = location.search.replace("?q=","");
-				}
+				try{
 
-				if(url.substring(0,1) == "/"){
-					url = url.substring(1);
-				}
-
-				if(turl.substring(0,1) == "/"){
-					turl = turl.substring(1);
-				}
-
-				if(url != turl){
-					if(turl){
-						return;
+					if(settings.urlMode == MODE_HASH){
+						var turl = location.hash.substring(1);
 					}
-				}
-
-				var contents = $("[h-contents]");
-				if(!contents.length){
-					contents = $("[hachiware-contents]")
-				}
-                
-                if(renders.pages[routes.page]){
-                    var html = renders.pages[routes.page];
-                    html = cond.tool.base64Decode(html);
-                    var htmlPage = html;
-                }
-                else{
-                    var htmlPage = $("template[h-page=\"" + routes.page + "\"]").html();
-					if(!htmlPage.length){
-						htmlPage = $("template[hachiware-page=\"" + routes.page + "\"]").html();
+					else if(settings.urlMode == MODE_QUERY){
+						var turl = location.search.replace("?q=","");
 					}
-                }
 
-				if(!htmlPage){
-					htmlPage = "";
-				}
+					if(url.substring(0,1) == "/"){
+						url = url.substring(1);
+					}
 
-                if(buffer.layout != buffer._layout){
+					if(turl.substring(0,1) == "/"){
+						turl = turl.substring(1);
+					}
 
-                    if(renders.layouts[buffer.layout]){
-                        var html = renders.layouts[buffer.layout];
-                        html = cond.tool.base64Decode(html);
-                        var htmlLayout = html;
-                    }
-                    else{
-                        var htmlLayout = $("template[h-layout=\"" + buffer.layout + "\"]").html();
-						if(!htmlLayout){
-							htmlLayout = $("template[hachiware-layout=\"" + buffer.layout + "\"]").html();
+					if(url != turl){
+						if(turl){
+							return;
 						}
-                    }
+					}
 
-					if(htmlLayout){
-
-						contents.html(htmlLayout);
-
-						var pageArea = contents.find("[h-page]");
-						if(!pageArea.length){
-							pageArea = contents.find("[hachiware-page]");
-						}
-						
-						pageArea.html(htmlPage);
-
-						buffer.pageDom = pageArea;
-						buffer.layoutDom = contents;
+					var contents = $("[h-contents]");
+					if(!contents.length){
+						contents = $("[hachiware-contents]")
+					}
+					
+					if(renders.pages[routes.page]){
+						var html = renders.pages[routes.page];
+						html = cond.tool.base64Decode(html);
+						var htmlPage = html;
 					}
 					else{
-						contents.html(htmlPage);
-						buffer.pageDom = contents;
-						buffer.layoutDom = null;
+						var htmlPage = $("template[h-page=\"" + routes.page + "\"]").html();
+						if(!htmlPage.length){
+							htmlPage = $("template[hachiware-page=\"" + routes.page + "\"]").html();
+						}
 					}
 
-				}
-				else{
+					if(!htmlPage){
+						htmlPage = "";
+					}
 
-					if(buffer.layout){
+					if(buffer.layout != buffer._layout){
 
-						var pageArea = contents.find("[h-page]");
-						if(!pageArea.length){
-							pageArea = contents.find("[hachiware-page]")
+						if(renders.layouts[buffer.layout]){
+							var html = renders.layouts[buffer.layout];
+							html = cond.tool.base64Decode(html);
+							var htmlLayout = html;
+						}
+						else{
+							var htmlLayout = $("template[h-layout=\"" + buffer.layout + "\"]").html();
+							if(!htmlLayout){
+								htmlLayout = $("template[hachiware-layout=\"" + buffer.layout + "\"]").html();
+							}
 						}
 
-						pageArea.html(htmlPage);
+						if(htmlLayout){
 
-						buffer.pageDom = pageArea;
-						buffer.layoutDom = contents;
+							contents.html(htmlLayout);
+
+							var pageArea = contents.find("[h-page]");
+							if(!pageArea.length){
+								pageArea = contents.find("[hachiware-page]");
+							}
+							
+							pageArea.html(htmlPage);
+
+							buffer.pageDom = pageArea;
+							buffer.layoutDom = contents;
+						}
+						else{
+							contents.html(htmlPage);
+							buffer.pageDom = contents;
+							buffer.layoutDom = null;
+						}
+
 					}
 					else{
-						contents.html(htmlPage);
-						buffer.pageDom = contents;
-						buffer.layoutDom = null;
+
+						if(buffer.layout){
+
+							var pageArea = contents.find("[h-page]");
+							if(!pageArea.length){
+								pageArea = contents.find("[hachiware-page]")
+							}
+
+							pageArea.html(htmlPage);
+
+							buffer.pageDom = pageArea;
+							buffer.layoutDom = contents;
+						}
+						else{
+							contents.html(htmlPage);
+							buffer.pageDom = contents;
+							buffer.layoutDom = null;
+						}
 					}
+
+				}catch(error){
+					console.error(error);
 				}
 
 				resolve();
 			},
 			function(resolve){
-				loadingPage(resolve, routes,"open");
+				try{
+					loadingPage(resolve, routes,"open");
+				}catch(error){
+					console.log(error);
+					resolve();
+				}
 			},
 			function(resolve){
-				if(navigator.onLine){
-					loadingPage(resolve, routes, "online");
-				}
-				else{
-					loadingPage(resolve, routes, "offline");
+				try{
+
+					if(navigator.onLine){
+						loadingPage(resolve, routes, "online");
+					}
+					else{
+						loadingPage(resolve, routes, "offline");
+					}
+
+				}catch(error){
+					console.log(error);
+					resolve();
 				}
 			},
 			function(){
 				buffer.nowUrl = url;
 				buffer._layout = buffer.layout;	
 				buffer.modeGo = false;
+
+				routingFlg = false;
 			},
 		]);
 
@@ -363,6 +398,10 @@ var Hachiware = function(){
 				});
 
 				$("html").on("click","a[href]", function(){
+
+					if(routingFlg){
+						return false;
+					}
 
 					var url = $(this).attr("href");
 									
@@ -475,6 +514,49 @@ var Hachiware = function(){
 						if(form.$base.submit){
 							var submitData = form.getData();
 							form.$base.submit.bind(form)(submitData);
+						}
+						
+					}catch(error){
+						console.log(error);
+					}
+
+					return false;
+				});
+				
+				$("html").on("reset","form",function(){
+
+					try{
+						var formName = $(this).attr("h-form");
+						if(!formName){
+							formName = $(this).attr("hachiware-form");
+						}
+
+						if(!formName){
+							return false;
+						}
+
+						if(!forms[formName]){
+							return false;
+						}
+
+						var form = new cond.loadForm(formName, {
+							context: cond, 
+							buffer: buffer,
+							sections: sections, 
+							forms: forms, 
+							renders: renders, 
+							models: models,
+							validators: validators,
+						});
+
+						form.$el = $("[h-form=\"" + formName + "\"]");
+						if(!form.$el.length){
+							form.$el = $("[hachiware-form=\"" + formName + "\"]");
+						}
+
+						if(form.$base.reset){
+							var submitData = form.getData();
+							form.$base.reset.bind(form)(submitData);
 						}
 						
 					}catch(error){

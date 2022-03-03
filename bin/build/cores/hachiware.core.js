@@ -152,7 +152,12 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 					var action = colums2[n2];
 					var value2 = value[action];
 
-					target[action](value2);
+					if(action == "attr"){
+						target.attr(value2[0], value2[1]);
+					}
+					else{
+						target[action](value2);
+					}
 				}
 			}
 		};

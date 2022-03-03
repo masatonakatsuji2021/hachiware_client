@@ -22,6 +22,12 @@ hachiware.loadPage = function(pageName, options){
 
 		this.$el = options.buffer.pageDom;
 		this.$layoutEl = options.buffer.layoutDom;
+
+		this._refresh = function(buffer){
+			this.$el = buffer.pageDom;
+			this.$layoutEl = buffer.layoutDom;
+		};
+
 	});
 
 };
