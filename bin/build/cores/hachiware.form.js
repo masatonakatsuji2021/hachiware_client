@@ -85,6 +85,7 @@ hachiware.loadForm = function(formName, options){
                             for(var n2 = 0 ; n2 < value.length ; n2++){
                                 value[n2] = value[n2].toString();
                             }
+                            obj.prop("checked",false);
     
                             for(var n2 = 0 ; n2 < obj.length ; n2++){
                                 var o_ = obj.eq(n2);

@@ -522,8 +522,10 @@ var Hachiware = function(){
 
 					return false;
 				});
-				
+
 				$("html").on("reset","form",function(){
+
+					__uploadFileBuffer = {};
 
 					try{
 						var formName = $(this).attr("h-form");
@@ -563,7 +565,6 @@ var Hachiware = function(){
 						console.log(error);
 					}
 
-					return false;
 				});
 
 				window.onoffline = function(){
