@@ -229,7 +229,7 @@ var Hachiware = function(){
 					}
 					else{
 						var htmlPage = $("template[h-page=\"" + routes.page + "\"]").html();
-						if(!htmlPage.length){
+						if(!htmlPage){
 							htmlPage = $("template[hachiware-page=\"" + routes.page + "\"]").html();
 						}
 					}

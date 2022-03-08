@@ -17,15 +17,17 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 	this.$storage = {
 		_getName: function(){
 			var appName = "h_storage_";
-			if(options.settings.appName){
-				appName = options.settings.appName;
+			if(options.settings){
+				if(options.settings.appName){
+					appName = options.settings.appName;
+				}
 			}
 			return appName;
 		},
 		get: function(type, name){
 			var appName = this._getName();
 
-			if(!type){
+			if(type){
 				var getData = localStorage.getItem(appName);
 			}
 			else{
@@ -33,6 +35,10 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 			}
 
 			getData = JSON.parse(getData);
+
+			if(!getData){
+				return null;
+			}
 
 			if(name){
 				if(getData[name]){
@@ -76,6 +82,8 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 			delete getData[name];
 
 			var getDataStr = JSON.stringify(getData);
+
+			var appName = this._getName();
 
 			if(type){
 				localStorage.setItem(appName, getDataStr);
@@ -184,12 +192,19 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 	};
 
 	this.$redirect = function(url, replaced){
+
+		if(url.substring(0,1) != "/"){
+			url = "/" + url;
+		}
+
 		if(replaced){
-			location.replace("#/" + url);
+			location.replace("#" + url);
 		}
 		else{
-			location.href = "#/" + url;
+			location.href = "#" + url;
 		}
+
+		options.context.redirect(url);
 	};
 
 	this.$back = function(){
