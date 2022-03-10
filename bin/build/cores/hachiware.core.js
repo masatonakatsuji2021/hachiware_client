@@ -134,7 +134,8 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 
 	if(
 		type == "pages" ||
-		type == "sections"
+		type == "sections" ||
+		type == "forms"
 	){
 
 		this.$setView = function(data){
@@ -143,6 +144,12 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 			for(var n = 0 ; n < colums.length ; n++){
 				var field = colums[n];
 				var value = data[field];
+
+				if(typeof value == "object"){
+					if(Array.isArray(value)){
+						value = value.join("\n");
+					}	
+				}
 
 				if(typeof value != "object"){
 					value = {
@@ -164,7 +171,7 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 						target.attr(value2[0], value2[1]);
 					}
 					else{
-						target[action](value2);
+						target[action](value2);						
 					}
 				}
 			}
