@@ -214,6 +214,31 @@ module.exports = function(rootPath, args, exitResolve){
             str += "\"" + p_ + "\": \"" + r_ + "\", ";
         }
         str += "}); \n";
+
+        if(conf.client.modules){
+            for(var n = 0 ; n < conf.client.modules.length ; n++){
+                var m = conf.client.modules[n];
+
+                var mpath = null;
+
+                try{
+                    mpath = require.resolve("hachiware_client_module_" + m + "/src");
+                }catch(error){}
+
+                try{
+                    mpath = require.resolve(m + "/src");
+                }catch(error){}
+
+                if(!mpath){
+                    continue;
+                }
+
+                var mString = hfs.readFileSync(mpath).toString();
+                str += mString + "\n";
+                outLog("Write Add client module \"" + m + "\".");
+            }
+        }
+
         hfs.appendFileSync(buildPath + "/core.js",str);
         outLog("Write Add convertLayouts " + buildPath + "/core.js");
 

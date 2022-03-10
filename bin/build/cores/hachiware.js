@@ -503,8 +503,23 @@ var Hachiware = function(){
 							forms: forms, 
 							renders: renders, 
 							models: models,
+							routes: routes,
 							validators: validators,
 						});
+
+						form.$redirect = function(url, replaced){
+
+							if(url.substring(0,1) != "/"){
+								url = "/" + url;
+							}
+						
+							if(replaced){
+								location.replace("#" + url);
+							}
+							else{
+								location.href = "#" + url;
+							}
+						};
 
 						form.$el = $("[h-form=\"" + formName + "\"]");
 						if(!form.$el.length){
@@ -548,8 +563,23 @@ var Hachiware = function(){
 							forms: forms, 
 							renders: renders, 
 							models: models,
+							routes: routes,
 							validators: validators,
 						});
+
+						form.$redirect = function(url, replaced){
+
+							if(url.substring(0,1) != "/"){
+								url = "/" + url;
+							}
+						
+							if(replaced){
+								location.replace("#" + url);
+							}
+							else{
+								location.href = "#" + url;
+							}
+						};
 
 						form.$el = $("[h-form=\"" + formName + "\"]");
 						if(!form.$el.length){
