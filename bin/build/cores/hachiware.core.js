@@ -214,6 +214,11 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 		options.context.redirect(url);
 	};
 
+	this.$refresh = function(){
+		var url = this.$routes.base;
+		options.context.redirect(url);
+	};
+
 	this.$back = function(){
 		history.back();
 	};

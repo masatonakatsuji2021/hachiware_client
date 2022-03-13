@@ -62,7 +62,7 @@ var Hachiware = function(){
 
 		if(loadPageCache[routes.page]){
 			var page = loadPageCache[routes.page];
-			page._refresh(buffer);
+			page._refresh(buffer, routes);
 		}
 		else{
 			var page = new cond.loadPage(routes.page, {
