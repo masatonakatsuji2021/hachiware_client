@@ -18,7 +18,7 @@ hachiware.loadForm = function(formName, options){
          * reset
          */
         this.reset = function(){
-            this.$el.reset();
+            this.$el[0].reset();
         };
 
         /**

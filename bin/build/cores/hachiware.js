@@ -177,6 +177,8 @@ var Hachiware = function(){
 		
 				var backRoutes = hachiwareRouting.get(backUrl);
 
+				backRoutes.baseRoutes = routes;
+
 				try{
 					loadingPage(resolve, backRoutes, "close", true);
 				}catch(error){
@@ -215,6 +217,10 @@ var Hachiware = function(){
 						if(turl){
 							return;
 						}
+					}
+
+					if(routes.changePage){
+						routes.page = routes.changePage;
 					}
 
 					var contents = $("[h-contents]");
@@ -500,6 +506,7 @@ var Hachiware = function(){
 							context: cond, 
 							buffer: buffer,
 							sections: sections, 
+							settings: settings,
 							forms: forms, 
 							renders: renders, 
 							models: models,
@@ -560,6 +567,7 @@ var Hachiware = function(){
 							context: cond, 
 							buffer: buffer,
 							sections: sections, 
+							settings: settings,
 							forms: forms, 
 							renders: renders, 
 							models: models,

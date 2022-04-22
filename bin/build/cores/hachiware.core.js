@@ -14,6 +14,16 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 
 	this.$routes = options.routes;
 
+	this.$changeRender = function(renderName){
+		if(options.routes.baseRoutes){
+			options.routes.baseRoutes.changePage = renderName;			
+		}
+		else{
+			options.routes.changePage = renderName;
+		}
+		return this;
+	};
+
 	this.$storage = {
 		_getName: function(){
 			var appName = "h_storage_";
@@ -177,6 +187,43 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 			}
 		};
 	}
+
+	/**
+	 * $setViewActive
+	 * @param {*} data 
+	 */
+	this.$setViewActive = function(data){
+
+        var errorArea = this.$el.find("[h-view-active]");
+        if(!errorArea.length){
+            errorArea = this.$el.find("[hachiware-view-active]");
+        }
+        errorArea.empty().removeAttr("mode-active");
+
+		if(!data){
+			return;
+		}
+
+        var colums = Object.keys(data);
+
+		for(var n = 0 ; n < colums.length ; n++){
+			var field = colums[n];
+			var value = data[field];
+
+			var errorText = value;
+			if(Array.isArray(value)){
+				errorText = value.join("<br>");
+			}
+
+			var errorArea_ = this.$el.find("[h-view-active=\"" + field + "\"]");
+			if(!errorArea_.length){
+				errorArea_ = this.$el.find("[hachiware-view-active=\"" + field + "\"]");
+			}
+                
+            errorArea_.attr("mode-active",true).html(errorText);
+		}
+
+	};
 
 	this.$section = function(sectionName){
 		return new options.context.loadSection(sectionName, options);
