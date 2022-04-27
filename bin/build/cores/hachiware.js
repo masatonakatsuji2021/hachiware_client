@@ -15,6 +15,44 @@
  * ====================================================================
  */
 
+/**
+ * [page move flow]
+ * 
+ * *if page class use....
+ * 
+ * page "close" callback
+ *     ↓
+ * page "before" callback <= 未対応
+ *     ↓
+ * <page open>
+ *     ↓
+ * page "open" callback
+ *     ↓
+ * page "online" callback
+ *     ↓
+ * page "offline" callback
+ * 
+ * --------------------
+ * 
+ * *if controlller class use....
+ * 
+ * controller "UUUU" class method "filterClose" callback　<= 未対応
+ *     ↓
+ * controller "UUUU" class method "close_YYY" callback
+ *     ↓
+ * controller "NNNN" class method "filterBefore" callback
+ *     ↓
+ * <page open>
+ *     ↓
+ * controller "NNNN" class method "XXXX" callback
+ *     ↓
+ * controller "NNNN" class method "filterAfter" callback
+ *     ↓
+ * controller "NNNN" class method "filterOnline" callback
+ *     ↓
+ * controller "NNNN" class method "filterOffline" callback
+ */
+
 var __uploadFileBuffer = {};
 	
 var Hachiware = function(){
@@ -36,6 +74,7 @@ var Hachiware = function(){
     var settings = {};
 	var routings = {};
     var pages = {};
+	var controllers = {};
 	var sections = {};
 	var forms = {};
     var models = {};
@@ -49,6 +88,7 @@ var Hachiware = function(){
     };
 
 	var loadPageCache = {};
+	var loadControllerCache = {};
 
 	var hachiwareRouting = null;
 
@@ -81,11 +121,15 @@ var Hachiware = function(){
 			loadPageCache[routes.page] = page;
 		}
 
-        if(mode == "before"){
-            if(page.layout || page.layout === null){
-                buffer.layout = page.layout;
-            }    
-        }
+		if(routes.exception){
+			page.exception = routes.exception;
+		}
+
+		if(mode == "initial"){
+			if(page.layout || page.layout === null){
+				buffer.layout = page.layout;
+			}
+		}
 
         cond.sync.then(function(resolve2){
 
@@ -109,6 +153,10 @@ var Hachiware = function(){
 					});
 
         }).then(function(){
+
+			if(mode == "initial"){
+				return resolve0();
+			}
 
             var syncName = "sync_" + mode;
 
@@ -149,6 +197,130 @@ var Hachiware = function(){
         return page;
     };
 
+	const loadingController = function(resolve0, routes, mode, noLayouted, completeCallback){
+
+        if(!controllers[routes.controller]){
+            return resolve0();
+        }
+
+		if(loadControllerCache[routes.controller]){
+			var controller = loadControllerCache[routes.controller];
+			controller._refresh(buffer, routes);
+		}
+		else{
+			var controller = new cond.loadController(routes.controller, {
+				controllers: controllers, 
+				routes: routes,
+				settings: settings,
+				context: cond, 
+				buffer: buffer,
+				sections: sections, 
+				forms: forms, 
+				renders: renders, 
+				models: models,
+				validators: validators,
+				statics: statics,
+			});
+			loadControllerCache[routes.controller] = controller;
+		}
+
+        if(mode == "initial"){
+            if(controller.layout || controller.layout === null){
+                buffer.layout = controller.layout;
+            }
+        }
+
+        cond.sync.then(function(resolve2){
+
+			if(!controller.extend){
+                return resolve2();
+            }
+
+            loadingController(
+				resolve2, 
+                { 
+					base: routes.base,
+					mode: routes.mode,
+                    controller: controller.extend, 
+                    aregment: routes.aregment,
+					query: routes.query,
+                } , 
+                mode, 
+				noLayouted,
+				function(parent){
+					controller.$parent = parent;
+				});
+
+        }).then(function(){
+
+			if(mode == "initial"){			
+				return resolve0();
+			}
+
+			if(mode == "open"){
+				var methodName = routes.action;
+				var syncMethodName = "sync_" + routes.action;
+			}
+			else if(mode == "close"){
+				var methodName = "close_" + routes.action;
+				var syncMethodName = "sync_close_" + routes.action;
+			}
+			else if(mode == "filterBefore"){
+				var methodName = "filterBefore";
+				var syncMethodName = "sync_filterBefore";
+			}
+			else if(mode == "filterAfter"){
+				var methodName = "filterAfter";
+				var syncMethodName = "sync_filterAfter";
+			}
+			else if(mode == "filterOffline"){
+				var methodName = "filterOffline";
+				var syncMethodName = "sync_filterOffline";
+			}
+			else if(mode == "filterOnline"){
+				var methodName = "filterOnline";
+				var syncMethodName = "sync_filterOnline";
+			}
+
+            if(
+				!controller[syncMethodName] && 
+				!controller[methodName]
+			){
+				return resolve0();
+            }
+
+			if(controller[syncMethodName]){
+				var controllerCallback = controller[syncMethodName].bind(controller);
+
+				if(routes.aregment){
+					controllerCallback(resolve0, routes.aregment);
+				}
+				else{
+					controllerCallback(resolve0);
+				}
+			}
+			else{
+				var controllerCallback = controller[methodName].bind(controller);
+
+				if(routes.aregment){
+					controllerCallback(routes.aregment);
+				}
+				else{
+					controllerCallback();
+				}
+				resolve0();
+			}
+					
+			if(completeCallback){
+				completeCallback(controller);
+			}
+
+		}).start();
+
+        return controller;
+    };
+
+
 	var routingFlg = false;
 
 	const renderings = function(url, backUrl){
@@ -160,7 +332,7 @@ var Hachiware = function(){
 		}
 
 		routes = hachiwareRouting.get(url);
-		
+
 		buffer.layout = null;
 
 		if(settings.defaultLayout){
@@ -169,7 +341,27 @@ var Hachiware = function(){
 
 		loadPageCache = {};
 
+		_renderings(url, routes, backUrl);
+
+	}.bind(this);
+
+	const _renderings = function(url, _routes, backUrl){
+		
 		this.sync.sync([
+			function(resolve){
+				try{
+
+					if(_routes.page){				
+						loadingPage(resolve, _routes, "initial");
+					}
+					else if(_routes.controller){
+						loadingController(resolve, _routes, "initial");
+					}
+
+				}catch(error){
+					console.error(error);
+				}
+			},
 			function(resolve){
 				if(!backUrl){
 					return resolve();
@@ -177,50 +369,66 @@ var Hachiware = function(){
 		
 				var backRoutes = hachiwareRouting.get(backUrl);
 
-				backRoutes.baseRoutes = routes;
+				backRoutes.baseRoutes = _routes;
 
 				try{
-					loadingPage(resolve, backRoutes, "close", true);
+
+					if(_routes.page){
+						loadingPage(resolve, backRoutes, "close", true);
+					}
+					else if(_routes.controller){
+						loadingController(resolve, backRoutes, "close", true);
+					}
+
 				}catch(error){
 					console.error(error);
-					resolve();
 				}
 			},
 			function(resolve){
+
+			
+				if(!_routes.controller){
+					return resolve();
+				}
+
 				try{
-					loadingPage(resolve, routes, "before");
+					loadingController(resolve, _routes, "filterBefore");
 				}catch(error){
 					console.error(error);
-					resolve();
 				}
+
 			},
 			function(resolve){
 
 				try{
 
-					if(settings.urlMode == MODE_HASH){
-						var turl = location.hash.substring(1);
-					}
-					else if(settings.urlMode == MODE_QUERY){
-						var turl = location.search.replace("?q=","");
-					}
+					if(_routes.mode == "success"){
 
-					if(url.substring(0,1) == "/"){
-						url = url.substring(1);
-					}
-
-					if(turl.substring(0,1) == "/"){
-						turl = turl.substring(1);
-					}
-
-					if(url != turl){
-						if(turl){
-							return;
+						if(settings.urlMode == MODE_HASH){
+							var turl = location.hash.substring(1);
 						}
+						else if(settings.urlMode == MODE_QUERY){
+							var turl = location.search.replace("?q=","");
+						}
+	
+						if(url.substring(0,1) == "/"){
+							url = url.substring(1);
+						}
+	
+						if(turl.substring(0,1) == "/"){
+							turl = turl.substring(1);
+						}
+	
+						if(url != turl){
+							if(turl){
+								return;
+							}
+						}
+	
 					}
 
-					if(routes.changePage){
-						routes.page = routes.changePage;
+					if(_routes.changePage){
+						_routes.chnageRender = _routes.changePage;
 					}
 
 					var contents = $("[h-contents]");
@@ -228,15 +436,30 @@ var Hachiware = function(){
 						contents = $("[hachiware-contents]")
 					}
 					
-					if(renders.pages[routes.page]){
-						var html = renders.pages[routes.page];
-						html = cond.tool.base64Decode(html);
-						var htmlPage = html;
+					if(_routes.page){
+						if(renders.pages[_routes.page]){
+							var html = renders.pages[_routes.page];
+							html = cond.tool.base64Decode(html);
+							var htmlPage = html;
+						}
+						else{
+							var htmlPage = $("template[h-page=\"" + _routes.page + "\"]").html();
+							if(!htmlPage){
+								htmlPage = $("template[hachiware-page=\"" + _routes.page + "\"]").html();
+							}
+						}
 					}
-					else{
-						var htmlPage = $("template[h-page=\"" + routes.page + "\"]").html();
-						if(!htmlPage){
-							htmlPage = $("template[hachiware-page=\"" + routes.page + "\"]").html();
+					else if(_routes.controller){
+						var _path = routes.controller + "/" + _routes.action;
+
+						if(_routes.chnageRender){
+							_path = _routes.chnageRender;
+						}
+
+						if(renders.pages[_path]){
+							var html = renders.pages[_path];
+							html = cond.tool.base64Decode(html);
+							var htmlPage = html;
 						}
 					}
 
@@ -308,26 +531,49 @@ var Hachiware = function(){
 			},
 			function(resolve){
 				try{
-					loadingPage(resolve, routes,"open");
+
+					if(_routes.page){
+						loadingPage(resolve, _routes,"open");
+					}
+					else if(_routes.controller){
+						loadingController(resolve, _routes,"open");
+					}
+
 				}catch(error){
 					console.log(error);
-					resolve();
 				}
 			},
 			function(resolve){
 				try{
 
+					var lineMode = "filterOffline";
 					if(navigator.onLine){
-						loadingPage(resolve, routes, "online");
+						lineMode = "filterOnline";
 					}
-					else{
-						loadingPage(resolve, routes, "offline");
+
+					if(_routes.page){
+						loadingPage(resolve, _routes, lineMode);
+					}
+					else if(_routes.controller){
+						loadingController(resolve, _routes, lineMode);
 					}
 
 				}catch(error){
 					console.log(error);
-					resolve();
 				}
+			},
+			function(resolve){
+
+				if(!_routes.controller){
+					return resolve();
+				}
+
+				try{
+					loadingController(resolve, _routes, "filterAfter");
+				}catch(error){
+					console.error(error);
+				}
+
 			},
 			function(){
 				buffer.nowUrl = url;
@@ -340,7 +586,7 @@ var Hachiware = function(){
 
 	}.bind(this);
 
-	this.redirect = function(url){
+	this._redirect = function(url){
 
 		var beforeUrl = buffer.nowUrl;
 		url = url.substring(1);
@@ -395,17 +641,27 @@ var Hachiware = function(){
 				renderings(firstUrl);
 
 				window.addEventListener('popstate', function(e){
+
+					if(settings.disabled){
+						history.pushState(null, null, location.href);
+						return false;
+					}
+
 					if(settings.urlMode == MODE_HASH){
-						cond.redirect(location.hash);
+						cond._redirect(location.hash);
 					}
 					else if(settings.urlMode == MODE_QUERY){
-						cond.redirect(location.search.replace("?q=",""));
+						cond._redirect(location.search.replace("?q=",""));
 					}
 				});
 
 				$("html").on("click","a[href]", function(){
-
+					
 					if(routingFlg){
+						return false;
+					}
+
+					if(settings.disabled){
 						return false;
 					}
 
@@ -429,7 +685,7 @@ var Hachiware = function(){
 							else{
 								history.pushState(null, null, "index.html");
 							}
-							cond.redirect(url);
+							cond._redirect(url);
 						}
 
 						return false;
@@ -659,6 +915,11 @@ var Hachiware = function(){
 		return this;
 	};
 
+	this.controller = function(controllerName, params){
+		controllers[controllerName] = params;
+		return this;
+	};
+
 	this.section = function(sectionName, params){
 		sections[sectionName] = params;
 		return this;
@@ -702,6 +963,138 @@ var Hachiware = function(){
 	this.setMode = function(bools){
 		buffer.modeGo = bools;
 		return this;
+	};
+
+	this.redirect = function(url, replaced){
+
+		if(url.substring(0,1) != "/"){
+			url = "/" + url;
+		}
+
+		if(replaced){
+			location.replace("#" + url);
+		}
+		else{
+			location.href = "#" + url;
+		}
+
+		this._redirect(url);
+	};
+
+	this.storage = {
+		_getName: function(){
+			var appName = "h_storage_";
+			if(settings.appName){
+				appName = settings.appName;
+			}
+			return appName;
+		},
+		get: function(type, name){
+			var appName = this._getName();
+
+			if(type){
+				var getData = localStorage.getItem(appName);
+			}
+			else{
+				var getData = sessionStorage.getItem(appName);
+			}
+
+			getData = JSON.parse(getData);
+
+			if(!getData){
+				return null;
+			}
+
+			if(name){
+				if(getData[name]){
+					return getData[name];
+				}
+				else{
+					return null;
+				}
+			}
+			else{
+				return getData;
+			}
+		},
+		set: function(type, name, value){
+			var getData = this.get(type);
+
+			if(!getData){
+				getData = {};
+			}
+
+			getData[name] = value;
+
+			var getDataStr = JSON.stringify(getData);
+
+			var appName = this._getName();
+
+			if(type){
+				localStorage.setItem(appName, getDataStr);
+			}
+			else{
+				sessionStorage.setItem(appName, getDataStr);
+			}
+		},
+		delete: function(type, name){
+			var getData = this.get(type);
+
+			if(getData[name] == undefined){
+				return;
+			}
+
+			delete getData[name];
+
+			var getDataStr = JSON.stringify(getData);
+
+			var appName = this._getName();
+
+			if(type){
+				localStorage.setItem(appName, getDataStr);
+			}
+			else{
+				sessionStorage.setItem(appName, getDataStr);
+			}
+		},
+		clear: function(type){
+			var appName = this._getName();
+
+			if(type){
+				localStorage.clearItem(appName);
+			}
+			else{
+				sessionStorage.clearItem(appName);
+			}
+		},
+		session: {
+			get: function(name){
+				return cond.storage.get(0, name);
+			},
+			set: function(name, value){
+				return cond.storage.set(0, name, value);
+			},
+			delete: function(name){
+				return cond.storage.delete(0, name);
+			},
+			clear: function(){
+				return cond.storage.clear(0);
+			},
+		},
+		local: {
+			get: function(name){
+				return cond.storage.get(1, name);
+			},
+			set: function(name, value){
+				return cond.storage.set(1, name, value);
+			},
+			delete: function(name){
+				return cond.storage.delete(1, name);
+			},
+			clear: function(){
+				return cond.storage.clear(1);
+			},
+		},
 	};
 
 };

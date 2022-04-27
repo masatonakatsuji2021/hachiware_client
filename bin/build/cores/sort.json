@@ -3,6 +3,7 @@
     "hachiware.core.js",
     "hachiware.static.js",
     "hachiware.page.js",
+    "hachiware.controller.js",
     "hachiware.section.js",
     "hachiware.model.js",
     "hachiware.validator.js",    

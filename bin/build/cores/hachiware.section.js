@@ -1,6 +1,17 @@
 hachiware.loadSection = function(sectionName, options){
-	
-	return new hachiware.loadCore("sections", sectionName, options,["open","append","close"],function(){
+
+	if(!options.sections[sectionName]){
+		options.sections[sectionName] = {};
+	}
+
+    var baseMethodList = [
+        "open",
+        "append",
+		"close",
+    ];
+
+
+	return new hachiware.loadCore("sections", sectionName, options, baseMethodList, function(){
 
 		var _queryString = null;
 		var sectionDom = null;
@@ -12,11 +23,46 @@ hachiware.loadSection = function(sectionName, options){
 		}
 		else{
 			sectionHtml = $("[hachiare-section-base=\""+ sectionName + "\"]").html();
+			if(!sectionHtml){
+				sectionHtml =  $("[h-section-base=\""+ sectionName + "\"]").html();
+			}
 		}
 
 		this.appended = false;
 		this.increment = 0;
 		this.toggle = false;
+
+		/**
+		 * onOpen
+		 * @param {*} callback 
+		 * @returns 
+		 */
+		this.onOpen = function(callback){
+			options.sections[sectionName].open = callback;
+			return this;
+		};
+
+		/**
+		 * onAppend
+		 * @param {*} callback 
+		 * @returns 
+		 */
+		this.onAppend = function(callback){
+			options.sections[sectionName].append = callback;
+			return this;
+		};
+	
+		/**
+		 * onClose
+		 * @param {*} callback 
+		 * @returns 
+		 */
+		this.onClose = function(callback){
+			options.sections[sectionName].close = callback;
+			return this;
+		};
+
+
 
 		/**
 		 * getContent

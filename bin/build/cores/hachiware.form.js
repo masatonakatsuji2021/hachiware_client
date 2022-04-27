@@ -1,25 +1,68 @@
 hachiware.loadForm = function(formName, options){
 
-	return new hachiware.loadCore("forms",formName,options,["submit","reset"],function(){
+    if(!options.forms[formName]){
+        options.forms[formName] = {};
+    }
 
-        this.$el = $("[h-form=\"" + formName + "\"]");
-        if(!this.$el.length){
-            this.$el = $("[hachiware-form=\"" + formName + "\"]");
-        }
+    var baseMethodList = [
+        "submit",
+        "reset",
+    ];
+
+	return new hachiware.loadCore("forms", formName,options, baseMethodList, function(){
 
         /**
          * submit
+         * @returns 
          */
         this.submit = function(){
+            this.getEl();
             this.$el.form();
+            return this;
+        };
+
+        /**
+         * onSubmit
+         * @param {*} callback 
+         * @returns 
+         */
+        this.onSubmit = function(callback){
+            options.forms[formName].submit = callback;
+            return this;
         };
 
         /**
          * reset
+         * @returns 
          */
         this.reset = function(){
+            this.getEl();
             this.$el[0].reset();
+            return this;
         };
+
+        /**
+         * onReset
+         * @param {*} callback 
+         * @returns 
+         */
+        this.onReset = function(callback){
+            options.forms[formName].reset = callback;
+            return this;
+        };
+
+        /**
+         * getEl
+         * @returns 
+         */
+        this.getEl = function(){
+            this.$el = $("[h-form=\"" + formName + "\"]");
+            if(!this.$el.length){
+                this.$el = $("[hachiware-form=\"" + formName + "\"]");
+            }
+            return this.$el;
+        };
+        this.getEl();
 
         /**
          * getInputDom
@@ -27,6 +70,7 @@ hachiware.loadForm = function(formName, options){
          * @returns 
          */
         this.getInputDom = function(name){
+            this.getEl();
             return this.$el.find("[name=\"" + name + "\"]");
         };
 
@@ -39,6 +83,8 @@ hachiware.loadForm = function(formName, options){
 
             var colums = Object.keys(options);
     
+            this.getEl();
+            
             var form = this.$el;
         
             for(var n = 0 ; n < colums.length ; n++){
@@ -119,6 +165,8 @@ hachiware.loadForm = function(formName, options){
          */
         this.getData = function(){
     
+            this.getEl();
+
             var form = this.$el;
     
             var submitData = {};
@@ -182,7 +230,9 @@ hachiware.loadForm = function(formName, options){
          * @returns 
          */
         this.setSelector = function(options){
-    
+
+            this.getEl();
+
             var colums = Object.keys(options);
     
             var form = this.$el;
@@ -267,6 +317,8 @@ hachiware.loadForm = function(formName, options){
          * @param {*} errorValidates 
          */
         this.viewErrors = function(errorValidates){
+
+            this.getEl();
 
             var errorArea = this.$el.find("[h-form-error]");
             if(!errorArea.length){

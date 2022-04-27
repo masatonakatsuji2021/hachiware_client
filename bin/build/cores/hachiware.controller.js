@@ -1,15 +1,8 @@
-hachiware.loadPage = function(pageName, options){
+hachiware.loadController = function(controllerName, options){
+	
+	var baseList = [];
 
-	var baseList = [
-		"open",
-		"sync_open",
-		"close",
-		"sync_close",
-		"online",
-		"offline",
-	];
-
-	return new hachiware.loadCore("pages", pageName, options, baseList,function(){
+	return new hachiware.loadCore("controllers", controllerName, options, baseList, function(){
 
 		if(options.buffer.modeGo){
 			this.$mode = "next";

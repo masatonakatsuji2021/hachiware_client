@@ -14,13 +14,26 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 
 	this.$routes = options.routes;
 
-	this.$changeRender = function(renderName){
-		if(options.routes.baseRoutes){
-			options.routes.baseRoutes.changePage = renderName;			
+	this.$disabled = function(status){
+		options.settings.disabled = status;
+		return this;
+	}
+
+	this.$changeRender = function(url){
+
+		if(!options.renders.pages[url]){
+			return this;
 		}
-		else{
-			options.routes.changePage = renderName;
+
+		var renderHtml = options.context.tool.base64Decode(options.renders.pages[url]);
+
+		var pageContent = $("[hachiware-page]");
+		if(!pageContent.length){
+			var pageContent =  $("[hachiware-contents]");
 		}
+
+		pageContent.html(renderHtml);
+
 		return this;
 	};
 
@@ -258,12 +271,12 @@ hachiware.loadCore = function(type, coreName, options, baseMethodList, callback)
 			location.href = "#" + url;
 		}
 
-		options.context.redirect(url);
+		options.context._redirect(url);
 	};
 
 	this.$refresh = function(){
 		var url = this.$routes.base;
-		options.context.redirect(url);
+		options.context._redirect(url);
 	};
 
 	this.$back = function(){
