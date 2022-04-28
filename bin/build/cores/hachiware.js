@@ -150,6 +150,7 @@ var Hachiware = function(){
                         page: page.extend, 
                         aregment: routes.aregment,
 						query: routes.query,
+						changeLayout: routes.changeLayout,
                     } , 
                     mode, 
 					noLayouted,
@@ -249,6 +250,7 @@ var Hachiware = function(){
                     controller: controller.extend, 
                     aregment: routes.aregment,
 					query: routes.query,
+					changeLayout: routes.changeLayout,
                 } , 
                 mode, 
 				noLayouted,
@@ -522,7 +524,11 @@ var Hachiware = function(){
 						htmlPage = "";
 					}
 
+					_routes.changeLayout = false;
+
 					if(buffer.layout != buffer._layout){
+
+						_routes.changeLayout = true;
 
 						if(renders.layouts[buffer.layout]){
 							var html = renders.layouts[buffer.layout];
@@ -760,7 +766,7 @@ var Hachiware = function(){
 							if(!settings.queryKey){
 								settings.queryKey = QUERY_KEYNAME;
 							}
-							
+
 							if(url){
 								history.pushState(null, null, "index.html?" + settings.queryKey + "=" + url);
 							}
