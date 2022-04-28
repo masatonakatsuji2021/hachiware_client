@@ -22,7 +22,7 @@
  * 
  * page "close" callback
  *     ↓
- * page "before" callback <= 未対応
+ * page "before" callback
  *     ↓
  * <page open>
  *     ↓
@@ -36,13 +36,17 @@
  * 
  * *if controlller class use....
  * 
- * controller "UUUU" class method "filterClose" callback　<= 未対応
+ * controller "UUUU" class method "filterClose" callback
  *     ↓
  * controller "UUUU" class method "close_YYY" callback
  *     ↓
  * controller "NNNN" class method "filterBefore" callback
  *     ↓
+ * controller "NNNN" class method "before_XXXX" callback
+ *     ↓
  * <page open>
+ *     ↓
+ * controller "NNNN" class method "filterOpen" callback
  *     ↓
  * controller "NNNN" class method "XXXX" callback
  *     ↓
@@ -59,6 +63,7 @@ var Hachiware = function(){
 
 	const MODE_HASH = "hash";
 	const MODE_QUERY = "query";
+	const QUERY_KEYNAME = "q";
 
 	var buffer = {
 		nowUrl:null,
@@ -257,7 +262,10 @@ var Hachiware = function(){
 				return resolve0();
 			}
 
-			if(mode == "open"){
+			if(mode == "before"){
+				var methodName = "before_" + routes.action;
+				var syncMethodName = "sync_before_" + routes.action;
+			}else if(mode == "open"){
 				var methodName = routes.action;
 				var syncMethodName = "sync_" + routes.action;
 			}
@@ -265,9 +273,17 @@ var Hachiware = function(){
 				var methodName = "close_" + routes.action;
 				var syncMethodName = "sync_close_" + routes.action;
 			}
+			else if(mode == "filterClose"){
+				var methodName = "filterClose";
+				var syncMethodName = "sync_filterClose";
+			}
 			else if(mode == "filterBefore"){
 				var methodName = "filterBefore";
 				var syncMethodName = "sync_filterBefore";
+			}
+			else if(mode == "filterOpen"){
+				var methodName = "filterOpen";
+				var syncMethodName = "sync_filterOpen";
 			}
 			else if(mode == "filterAfter"){
 				var methodName = "filterAfter";
@@ -371,6 +387,25 @@ var Hachiware = function(){
 
 				backRoutes.baseRoutes = _routes;
 
+				if(!backRoutes.controller){
+					return resolve();
+				}
+
+				try{
+					loadingController(resolve, backRoutes, "filterClose", true);
+				}catch(error){
+					console.error(error);
+				}
+			},
+			function(resolve){
+				if(!backUrl){
+					return resolve();
+				}
+		
+				var backRoutes = hachiwareRouting.get(backUrl);
+
+				backRoutes.baseRoutes = _routes;
+
 				try{
 
 					if(_routes.page){
@@ -385,7 +420,6 @@ var Hachiware = function(){
 				}
 			},
 			function(resolve){
-
 			
 				if(!_routes.controller){
 					return resolve();
@@ -402,13 +436,34 @@ var Hachiware = function(){
 
 				try{
 
+					if(_routes.page){
+						loadingPage(resolve, _routes,"before");
+					}
+					else if(_routes.controller){
+						loadingController(resolve, _routes,"before");
+					}
+
+				}catch(error){
+					console.log(error);
+				}
+
+			},
+			function(resolve){
+
+				try{
+
 					if(_routes.mode == "success"){
 
 						if(settings.urlMode == MODE_HASH){
 							var turl = location.hash.substring(1);
 						}
 						else if(settings.urlMode == MODE_QUERY){
-							var turl = location.search.replace("?q=","");
+
+							if(!settings.queryKey){
+								settings.queryKey = QUERY_KEYNAME;
+							}
+
+							var turl = location.search.replace("?" + settings.queryKey + "=", "");
 						}
 	
 						if(url.substring(0,1) == "/"){
@@ -530,6 +585,18 @@ var Hachiware = function(){
 				resolve();
 			},
 			function(resolve){
+
+				if(!_routes.controller){
+					return resolve();
+				}
+
+				try{
+					loadingController(resolve, _routes,"filterOpen");
+				}catch(error){
+					console.log(error);
+				}
+			},
+			function(resolve){
 				try{
 
 					if(_routes.page){
@@ -610,8 +677,13 @@ var Hachiware = function(){
 			}
 		}
 		else if(settings.urlMode == MODE_QUERY){
+
+			if(!settings.queryKey){
+				settings.queryKey = QUERY_KEYNAME;
+			}
+
 			if(location.search){
-				var url = location.search.replace("?q=","");
+				var url = location.search.replace("?" + settings.queryKey + "=", "");
 				firstUrl = url;
 			}
 		}
@@ -651,7 +723,12 @@ var Hachiware = function(){
 						cond._redirect(location.hash);
 					}
 					else if(settings.urlMode == MODE_QUERY){
-						cond._redirect(location.search.replace("?q=",""));
+
+						if(!settings.queryKey){
+							settings.queryKey = QUERY_KEYNAME;
+						}
+
+						cond._redirect(location.search.replace("?" + settings.queryKey + "=", ""));
 					}
 				});
 
@@ -679,8 +756,13 @@ var Hachiware = function(){
 							location.hash = "#" + url;
 						}
 						else if(settings.urlMode == MODE_QUERY){
+
+							if(!settings.queryKey){
+								settings.queryKey = QUERY_KEYNAME;
+							}
+							
 							if(url){
-								history.pushState(null, null, "index.html?q=" + url);
+								history.pushState(null, null, "index.html?" + settings.queryKey + "=" + url);
 							}
 							else{
 								history.pushState(null, null, "index.html");
